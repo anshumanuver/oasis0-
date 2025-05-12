@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,7 +62,34 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				// ORRR platform custom colors
+				'orrr-blue': {
+					50: '#f0f7ff',
+					100: '#e0effe',
+					200: '#bae0fd',
+					300: '#7ccafb',
+					400: '#36aaf5',
+					500: '#0c8ddb',
+					600: '#016fb9',
+					700: '#055997',
+					800: '#0a4a7c',
+					900: '#0d3f69',
+					950: '#072948',
+				},
+				'orrr-teal': {
+					50: '#effcfb',
+					100: '#d7f5f4',
+					200: '#b3ecea',
+					300: '#7ddedd',
+					400: '#43c6c5',
+					500: '#27acab',
+					600: '#1e8c8d',
+					700: '#1d7072',
+					800: '#1d5a5c',
+					900: '#1c4b4d',
+					950: '#0a3133',
+				},
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
