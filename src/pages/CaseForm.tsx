@@ -190,7 +190,7 @@ export default function CaseForm() {
                   <SelectValue placeholder="Select a mediator or arbitrator (optional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No preference</SelectItem>
+                  <SelectItem value="none">No preference</SelectItem>
                   <SelectItem value="2">Neutral Smith</SelectItem>
                   <SelectItem value="4">Neutral Davis</SelectItem>
                 </SelectContent>

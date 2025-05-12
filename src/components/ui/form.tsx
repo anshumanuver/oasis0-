@@ -47,13 +47,23 @@ const useFormField = () => {
   // Check if we're in the context of a form
   const formContext = useFormContext();
   
-  // Make sure the form context exists before destructuring
+  // Make sure the field context exists before proceeding
   if (!fieldContext) {
     throw new Error("useFormField should be used within <FormField>")
   }
 
+  // Create a default fieldState with empty values to prevent TS errors
+  const defaultFieldState = {
+    invalid: false,
+    isDirty: false,
+    isTouched: false,
+    error: undefined,
+  };
+  
   // Only destructure if formContext exists
-  const fieldState = formContext ? formContext.getFieldState(fieldContext.name, formContext.formState) : {};
+  const fieldState = formContext 
+    ? formContext.getFieldState(fieldContext.name, formContext.formState)
+    : defaultFieldState;
   
   const { id } = itemContext
 
