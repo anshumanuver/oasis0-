@@ -7,13 +7,24 @@ interface DashboardHeaderProps {
 }
 
 export default function DashboardHeader({ title, description }: DashboardHeaderProps) {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const currentDateTime = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric'
   });
+
+  // Get display name from profile or user metadata
+  const getDisplayName = () => {
+    if (profile?.first_name && profile?.last_name) {
+      return `${profile.first_name} ${profile.last_name}`;
+    } else if (user?.user_metadata?.first_name && user?.user_metadata?.last_name) {
+      return `${user.user_metadata.first_name} ${user.user_metadata.last_name}`;
+    } else {
+      return user?.email || 'User';
+    }
+  };
 
   return (
     <div className="mb-8">
@@ -30,7 +41,7 @@ export default function DashboardHeader({ title, description }: DashboardHeaderP
       </div>
       {user && (
         <p className="mt-2 text-sm text-gray-500">
-          Welcome, {user.name} ({user.role})
+          Welcome, {getDisplayName()} {profile?.role && `(${profile.role})`}
         </p>
       )}
     </div>

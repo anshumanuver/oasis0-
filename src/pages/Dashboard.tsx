@@ -11,10 +11,10 @@ import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import StatsCard from '@/components/dashboard/StatsCard';
 import CasesTable from '@/components/dashboard/CasesTable';
 import UpcomingHearings from '@/components/dashboard/UpcomingHearings';
-import { DashboardStats } from '@/types';
+import { DashboardStats, UserRole } from '@/types';
 
 export default function Dashboard() {
-  const { user, isLoading } = useAuth();
+  const { user, profile, isLoading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,15 +26,18 @@ export default function Dashboard() {
 
   if (!user) return null; // Don't render anything while checking authentication
 
+  // Get user role from profile or default to 'client'
+  const userRole = profile?.role as UserRole || 'client';
+
   // Filter cases according to user role
-  const userCases = user.role === 'admin' 
+  const userCases = userRole === 'admin' 
     ? mockCases 
-    : user.role === 'neutral'
+    : userRole === 'neutral'
       ? mockCases.filter(caseItem => caseItem.neutralId === user.id)
       : mockCases.filter(caseItem => caseItem.clientId === user.id);
   
   // Get dashboard stats
-  const stats: DashboardStats = generateDashboardStats(user.id, user.role);
+  const stats: DashboardStats = generateDashboardStats(user.id, userRole);
 
   return (
     <MainLayout withFooter={false}>
@@ -88,7 +91,7 @@ export default function Dashboard() {
               </div>
             </Card>
             
-            {user.role === 'client' && (
+            {userRole === 'client' && (
               <div className="mt-6">
                 <Button className="w-full" size="lg" asChild>
                   <a href="/cases/new">File a New Case</a>
@@ -107,7 +110,7 @@ export default function Dashboard() {
                 <h2 className="text-lg font-medium">Quick Actions</h2>
               </div>
               <div className="p-6 space-y-4">
-                {user.role === 'client' && (
+                {userRole === 'client' && (
                   <Button variant="outline" className="w-full justify-start">
                     <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -115,7 +118,7 @@ export default function Dashboard() {
                     Upload New Document
                   </Button>
                 )}
-                {user.role === 'neutral' && (
+                {userRole === 'neutral' && (
                   <Button variant="outline" className="w-full justify-start">
                     <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
