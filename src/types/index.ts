@@ -1,4 +1,5 @@
 
+
 // User related types
 export type UserRole = 'admin' | 'neutral' | 'client';
 
@@ -54,3 +55,4 @@ export interface DashboardStats {
   resolvedCases: number;
   upcomingHearings: number;
 }
+
