@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
@@ -10,7 +9,7 @@ import MainLayout from '@/components/layout/MainLayout';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { signIn } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -22,18 +21,19 @@ export default function Login() {
     setError('');
 
     try {
-      const success = await login(email, password);
-      if (success) {
+      const { error: signInError } = await signIn(email, password);
+      
+      if (signInError) {
+        setError(signInError.message);
+      } else {
         toast({
           title: "Login successful",
-          description: "Welcome back to orrr ODR platform!",
+          description: "Welcome to the orrr ODR platform!",
         });
         navigate('/dashboard');
-      } else {
-        setError('Invalid email or password');
       }
-    } catch (err) {
-      setError('An error occurred. Please try again.');
+    } catch (err: any) {
+      setError(err.message || 'An error occurred. Please try again.');
       console.error(err);
     } finally {
       setIsLoading(false);
@@ -147,12 +147,7 @@ export default function Login() {
           </div>
 
           <div className="mt-6 text-center text-xs text-gray-500">
-            <p>For demo purposes, use these credentials:</p>
-            <ul className="mt-2 space-y-1">
-              <li>Admin: admin@orrr.com / password</li>
-              <li>Neutral: neutral@orrr.com / password</li>
-              <li>Client: client@orrr.com / password</li>
-            </ul>
+            <p>Create a new account to start using the ODR platform.</p>
           </div>
         </div>
       </div>

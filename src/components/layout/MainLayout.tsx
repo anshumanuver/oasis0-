@@ -1,5 +1,6 @@
 
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import { useAuth } from '@/context/AuthContext';
@@ -7,10 +8,23 @@ import { useAuth } from '@/context/AuthContext';
 interface MainLayoutProps {
   children: ReactNode;
   withFooter?: boolean;
+  requireAuth?: boolean;
 }
 
-export default function MainLayout({ children, withFooter = true }: MainLayoutProps) {
-  const { isLoading } = useAuth();
+export default function MainLayout({ 
+  children, 
+  withFooter = true, 
+  requireAuth = false 
+}: MainLayoutProps) {
+  const { user, isLoading } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!isLoading && requireAuth && !user) {
+      navigate('/login', { state: { from: location.pathname } });
+    }
+  }, [isLoading, user, requireAuth, navigate, location]);
 
   if (isLoading) {
     return (

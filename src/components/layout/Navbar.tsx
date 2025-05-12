@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -13,10 +13,38 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/context/AuthContext';
 import { Menu, X, Bell, User } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 
 export default function Navbar() {
-  const { user, logout } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await signOut();
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out.",
+    });
+    navigate('/');
+  };
+
+  const getInitials = () => {
+    if (profile?.first_name && profile?.last_name) {
+      return `${profile.first_name[0]}${profile.last_name[0]}`.toUpperCase();
+    } else if (user?.email) {
+      return user.email[0].toUpperCase();
+    }
+    return 'U';
+  };
+
+  const getDisplayName = () => {
+    if (profile?.first_name && profile?.last_name) {
+      return `${profile.first_name} ${profile.last_name}`;
+    } else {
+      return user?.email || 'User';
+    }
+  };
 
   return (
     <nav className="bg-white shadow-sm fixed w-full top-0 z-10">
@@ -41,7 +69,7 @@ export default function Navbar() {
                 <Link to="/cases" className="nav-link">
                   Cases
                 </Link>
-                {user.role === 'admin' && (
+                {profile?.role === 'admin' && (
                   <Link to="/admin" className="nav-link">
                     Admin Panel
                   </Link>
@@ -53,15 +81,15 @@ export default function Navbar() {
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                       <Avatar>
-                        <AvatarImage src={user.avatar} />
-                        <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                        <AvatarImage src={user.user_metadata?.avatar_url} />
+                        <AvatarFallback>{getInitials()}</AvatarFallback>
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>
                       <div className="font-normal text-sm text-gray-500">Signed in as</div>
-                      <div>{user.name}</div>
+                      <div>{getDisplayName()}</div>
                       <div className="text-xs text-gray-500">{user.email}</div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
@@ -72,7 +100,7 @@ export default function Navbar() {
                       <Link to="/settings">Settings</Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={logout}>
+                    <DropdownMenuItem onClick={handleLogout}>
                       Log out
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -123,7 +151,7 @@ export default function Navbar() {
                 >
                   Cases
                 </Link>
-                {user.role === 'admin' && (
+                {profile?.role === 'admin' && (
                   <Link
                     to="/admin"
                     className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
@@ -136,12 +164,12 @@ export default function Navbar() {
                   <div className="flex items-center px-3">
                     <div className="flex-shrink-0">
                       <Avatar>
-                        <AvatarImage src={user.avatar} />
-                        <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                        <AvatarImage src={user.user_metadata?.avatar_url} />
+                        <AvatarFallback>{getInitials()}</AvatarFallback>
                       </Avatar>
                     </div>
                     <div className="ml-3">
-                      <div className="text-base font-medium text-gray-800">{user.name}</div>
+                      <div className="text-base font-medium text-gray-800">{getDisplayName()}</div>
                       <div className="text-sm font-medium text-gray-500">{user.email}</div>
                     </div>
                   </div>
@@ -162,7 +190,7 @@ export default function Navbar() {
                     </Link>
                     <button
                       onClick={() => {
-                        logout();
+                        handleLogout();
                         setMobileMenuOpen(false);
                       }}
                       className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"

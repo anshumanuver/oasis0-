@@ -8,11 +8,14 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import MainLayout from '@/components/layout/MainLayout';
 import { UserRole } from '@/types';
+import { useAuth } from '@/context/AuthContext';
 
 export default function Register() {
   const navigate = useNavigate();
+  const { signUp } = useAuth();
   const [formData, setFormData] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -41,15 +44,31 @@ export default function Register() {
       return;
     }
 
-    // In a real app, this would be an API call to register a new user
-    setTimeout(() => {
-      toast({
-        title: "Registration successful",
-        description: "Please check your email to verify your account.",
-      });
-      navigate('/login');
+    try {
+      const { error: signUpError, data } = await signUp(
+        formData.email, 
+        formData.password, 
+        {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          role: formData.role
+        }
+      );
+
+      if (signUpError) {
+        setError(signUpError.message);
+      } else {
+        toast({
+          title: "Registration successful",
+          description: "Please check your email to verify your account.",
+        });
+        navigate('/login');
+      }
+    } catch (err: any) {
+      setError(err.message || 'An error occurred during registration');
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -72,14 +91,27 @@ export default function Register() {
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
+                <Label htmlFor="firstName">First Name</Label>
                 <Input
-                  id="name"
-                  name="name"
+                  id="firstName"
+                  name="firstName"
                   type="text"
-                  value={formData.name}
+                  value={formData.firstName}
                   onChange={handleChange}
-                  placeholder="John Doe"
+                  placeholder="John"
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="lastName">Last Name</Label>
+                <Input
+                  id="lastName"
+                  name="lastName"
+                  type="text"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  placeholder="Doe"
                   required
                 />
               </div>
