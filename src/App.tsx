@@ -13,6 +13,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import CaseForm from "./pages/CaseForm";
+import CaseDetail from "./pages/CaseDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -50,6 +51,11 @@ const AppRoutes = () => {
       <Route path="/cases/new" element={
         <ProtectedRoute>
           <CaseForm />
+        </ProtectedRoute>
+      } />
+      <Route path="/cases/:caseId" element={
+        <ProtectedRoute>
+          <CaseDetail />
         </ProtectedRoute>
       } />
       <Route path="*" element={<NotFound />} />
