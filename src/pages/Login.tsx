@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
@@ -9,10 +10,11 @@ import MainLayout from '@/components/layout/MainLayout';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { signIn } = useAuth();
+  const { signIn, signInWithGoogle } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -37,6 +39,25 @@ export default function Login() {
       console.error(err);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    setError('');
+
+    try {
+      const { error: googleError } = await signInWithGoogle();
+      
+      if (googleError) {
+        setError(googleError.message);
+        setIsGoogleLoading(false);
+      }
+      // No need to navigate here as OAuth will redirect automatically
+    } catch (err: any) {
+      setError(err.message || 'An error occurred with Google sign in.');
+      console.error(err);
+      setIsGoogleLoading(false);
     }
   };
 
@@ -103,8 +124,13 @@ export default function Login() {
                 </div>
               </div>
               
-              <div className="mt-6 grid grid-cols-2 gap-3">
-                <Button variant="outline" className="h-11">
+              <div className="mt-6">
+                <Button 
+                  variant="outline" 
+                  className="w-full h-11" 
+                  onClick={handleGoogleSignIn}
+                  disabled={isGoogleLoading}
+                >
                   <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                     <path
                       fill="currentColor"
@@ -124,16 +150,7 @@ export default function Login() {
                     />
                     <path fill="none" d="M1 1h22v22H1z" />
                   </svg>
-                  Google
-                </Button>
-                <Button variant="outline" className="h-11">
-                  <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
-                    <path
-                      fill="currentColor"
-                      d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z"
-                    />
-                  </svg>
-                  Facebook
+                  {isGoogleLoading ? 'Connecting...' : 'Google'}
                 </Button>
               </div>
             </div>
