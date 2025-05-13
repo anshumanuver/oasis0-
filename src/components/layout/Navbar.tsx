@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -46,6 +45,14 @@ export default function Navbar() {
     }
   };
 
+  // Determine dashboard link based on user role
+  const getDashboardLink = () => {
+    if (profile?.role === 'neutral') {
+      return '/mediator-dashboard';
+    }
+    return '/dashboard';
+  };
+
   return (
     <nav className="bg-white shadow-sm fixed w-full top-0 z-10">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -63,12 +70,17 @@ export default function Navbar() {
           <div className="hidden md:flex md:items-center md:space-x-4">
             {user ? (
               <>
-                <Link to="/dashboard" className="nav-link">
+                <Link to={getDashboardLink()} className="nav-link">
                   Dashboard
                 </Link>
                 <Link to="/cases" className="nav-link">
                   Cases
                 </Link>
+                {profile?.role === 'neutral' && (
+                  <Link to="/hearings" className="nav-link">
+                    Hearings
+                  </Link>
+                )}
                 {profile?.role === 'admin' && (
                   <Link to="/admin" className="nav-link">
                     Admin Panel
@@ -138,7 +150,7 @@ export default function Navbar() {
             {user ? (
               <>
                 <Link
-                  to="/dashboard"
+                  to={getDashboardLink()}
                   className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -151,6 +163,15 @@ export default function Navbar() {
                 >
                   Cases
                 </Link>
+                {profile?.role === 'neutral' && (
+                  <Link
+                    to="/hearings"
+                    className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Hearings
+                  </Link>
+                )}
                 {profile?.role === 'admin' && (
                   <Link
                     to="/admin"

@@ -1,4 +1,3 @@
-
 export interface UserProfile {
   id: string;
   first_name: string;
@@ -52,42 +51,46 @@ export interface Case {
   hearings?: Hearing[]; // Add hearings property for UpcomingHearings component
 }
 
+// Update Party type to include required fields
 export interface Party {
   id: string;
   name: string;
   email: string;
-  phone: string;
-  address: string;
-  isClient: boolean;
-  role?: 'claimant' | 'respondent' | 'neutral' | 'witness'; // Add role for CaseDetail.tsx
+  phone?: string;
+  address?: string;
+  role: 'claimant' | 'respondent' | 'neutral' | 'witness';
+  isClient?: boolean;
 }
 
+// Update Message type to include required fields
+export interface Message {
+  id: string;
+  sender: string;
+  senderId: string;
+  content: string;
+  sentAt: string;
+  timestamp: Date | string;
+}
+
+// Update Event type to include required fields
+export interface Event {
+  id: string;
+  caseId: string;
+  title: string;
+  description: string;
+  date: string;
+  type: string;
+  timestamp: Date | string;
+}
+
+// Update Document type if needed
 export interface Document {
   id: string;
   name: string;
   uploadedAt: string;
   size: number;
   url?: string;
-  uploadedBy?: string; // Add for mockData.ts
-}
-
-export interface Message {
-  id: string;
-  senderId: string;
-  content: string;
-  timestamp: string;
-  sender?: string;  // Add for CaseDetail.tsx
-  sentAt?: string;  // Add for CaseDetail.tsx
-}
-
-export interface Event {
-  id: string;
-  caseId: string;
-  type: string;
-  description: string;
-  timestamp: string;
-  title?: string;  // Add for CaseDetail.tsx
-  date?: string;   // Add for CaseDetail.tsx
+  type?: string;
 }
 
 export interface TimelineEvent {
@@ -118,4 +121,21 @@ export interface Hearing {
 export interface Trend {
   value: number;
   isPositive: boolean;
+}
+
+// Add MediatorStats type for dashboard
+export interface MediatorStats {
+  activeCases: number;
+  resolvedCases: number;
+  pendingHearings: number;
+  casesThisMonth: number;
+  resolutionRate: number;
+}
+
+// Add CaseAssignment type
+export interface CaseAssignment {
+  id: string;
+  caseId: string;
+  assignedDate: string;
+  status: 'pending' | 'accepted' | 'declined';
 }
