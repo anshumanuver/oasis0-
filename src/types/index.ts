@@ -1,25 +1,47 @@
-// User related types
-export type UserRole = 'admin' | 'neutral' | 'client';
-
-export interface User {
+export interface UserProfile {
   id: string;
-  name: string;
+  first_name: string;
+  last_name: string;
   email: string;
-  role: UserRole;
-  avatar?: string;
-  createdAt: string;
-  isVerified: boolean;
+  phone_number?: string;
+  address?: string;
+  city?: string;
+  country?: string;
+  zip_code?: string;
+  bio?: string;
+  avatar_url?: string;
+  role?: UserRole;
+  created_at: string;
+  updated_at: string;
 }
 
-// Case related types
-export type CaseStatus = 'pending' | 'in_progress' | 'resolved';
-export type DisputeType = 'negotiation' | 'mediation' | 'arbitration' | 'conciliation';
+export type UserRole = 'client' | 'neutral' | 'admin';
+
+export interface Case {
+  id: string;
+  title: string;
+  description: string;
+  disputeType: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string;
+  parties: Party[];
+  documents: Document[];
+  messages: Message[];
+  events: Event[];
+  nextHearingDate?: string;
+  clientId?: string;  // Added missing property
+  neutralId?: string; // Added missing property
+}
 
 export interface Party {
   id: string;
   name: string;
   email: string;
-  role: 'claimant' | 'respondent' | 'neutral' | 'witness';
+  phone: string;
+  address: string;
+  isClient: boolean;
 }
 
 export interface Document {
@@ -27,42 +49,40 @@ export interface Document {
   name: string;
   uploadedAt: string;
   size: number;
+  url?: string;  // Added missing property
 }
 
 export interface Message {
   id: string;
-  sender: string;
+  senderId: string;
   content: string;
-  sentAt: string;
+  timestamp: string;
 }
 
-export interface TimelineEvent {
+export interface Event {
   id: string;
-  title: string;
+  caseId: string;
+  type: string;
   description: string;
-  date: string;
+  timestamp: string;
 }
 
-export interface Case {
-  id: string;
-  title: string;
-  description: string;
-  status: CaseStatus;
-  disputeType: DisputeType;
-  createdAt: string;
-  updatedAt?: string;
-  createdBy: string;
-  parties?: Party[];
-  documents?: Document[];
-  messages?: Message[];
-  events?: TimelineEvent[];
-  nextHearingDate?: string;
-}
-
-// Dashboard data types
 export interface DashboardStats {
   totalCases: number;
   pendingCases: number;
   resolvedCases: number;
   upcomingHearings: number;
+}
+
+export interface Hearing {
+  id: string;
+  caseId: string;
+  date: string;
+  title: string;
+  description?: string;
+}
+
+export interface Trend {
+  value: number;
+  isPositive: boolean;
 }
