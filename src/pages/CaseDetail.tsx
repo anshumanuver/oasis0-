@@ -42,8 +42,8 @@ const fetchCaseById = async (caseId: string): Promise<Case> => {
           { id: 'doc-2', name: 'Communication Records.zip', uploadedAt: '2025-04-15T09:30:00Z', size: 5640000 }
         ],
         messages: [
-          { id: 'msg-1', sender: 'Mediator Johnson', content: 'I've reviewed the case and would like to schedule an initial hearing.', sentAt: '2025-04-20T13:15:00Z' },
-          { id: 'msg-2', sender: 'XYZ Corp Representative', content: 'We're available next Tuesday afternoon.', sentAt: '2025-04-21T10:45:00Z' }
+          { id: 'msg-1', sender: 'Mediator Johnson', content: "I have reviewed the case and would like to schedule an initial hearing.", sentAt: '2025-04-20T13:15:00Z' },
+          { id: 'msg-2', sender: 'XYZ Corp Representative', content: "We are available next Tuesday afternoon.", sentAt: '2025-04-21T10:45:00Z' }
         ],
         events: [
           { id: 'event-1', title: 'Case Filed', description: 'Initial case documentation submitted', date: '2025-04-10T10:30:00Z' },
