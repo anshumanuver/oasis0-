@@ -1,12 +1,5 @@
-
 import { format } from 'date-fns';
-
-interface TimelineEvent {
-  id: string;
-  title: string;
-  description: string;
-  date: string;
-}
+import { TimelineEvent } from '@/types';
 
 interface CaseTimelineProps {
   events: TimelineEvent[];

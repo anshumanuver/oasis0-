@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 
+// Update the interface to match what we expect from typeConverters.ts
 interface Message {
   id: string;
   sender: string;

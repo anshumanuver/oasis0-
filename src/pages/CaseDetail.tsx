@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -18,6 +17,7 @@ import { Separator } from '@/components/ui/separator';
 import CaseTimeline from '@/components/case/CaseTimeline';
 import CaseDocuments from '@/components/case/CaseDocuments';
 import CaseMessages from '@/components/case/CaseMessages';
+import { convertToTimelineEvents, convertToCaseMessages } from '@/utils/typeConverters';
 
 // Mock function to fetch case data - replace with actual API call in production
 const fetchCaseById = async (caseId: string): Promise<Case> => {
@@ -214,7 +214,7 @@ export default function CaseDetail() {
                     <Separator className="my-6" />
                     
                     <CardTitle className="mb-4">Timeline</CardTitle>
-                    <CaseTimeline events={caseData.events} />
+                    <CaseTimeline events={convertToTimelineEvents(caseData.events)} />
                   </TabsContent>
                   
                   <TabsContent value="documents" className="mt-0">
@@ -224,7 +224,7 @@ export default function CaseDetail() {
                   
                   <TabsContent value="messages" className="mt-0">
                     <CardTitle className="mb-4">Case Communications</CardTitle>
-                    <CaseMessages messages={caseData.messages} />
+                    <CaseMessages messages={convertToCaseMessages(caseData.messages)} />
                   </TabsContent>
                 </Tabs>
               </CardHeader>

@@ -54,22 +54,25 @@ export const mockDocuments: Document[] = [
     id: 'd1',
     name: 'Contract Agreement.pdf',
     url: '#',
-    uploadedBy: '3',
     uploadedAt: '2023-03-15T10:30:00Z',
+    size: 0, // Adding size property
+    uploadedBy: '3',
   },
   {
     id: 'd2',
     name: 'Evidence Document.pdf',
     url: '#',
-    uploadedBy: '3',
     uploadedAt: '2023-03-16T08:20:00Z',
+    size: 0, // Adding size property
+    uploadedBy: '3',
   },
   {
     id: 'd3',
     name: 'Witness Statement.pdf',
     url: '#',
-    uploadedBy: '5',
     uploadedAt: '2023-03-20T14:15:00Z',
+    size: 0, // Adding size property
+    uploadedBy: '5',
   },
 ];
 
@@ -78,6 +81,7 @@ export const mockHearings: Hearing[] = [
     id: 'h1',
     title: 'Initial Consultation',
     description: 'First meeting to discuss the dispute details',
+    caseId: 'c1', // Adding caseId property
     scheduledAt: new Date(Date.now() + 86400000 * 2).toISOString(), // 2 days from now
     duration: 60,
     meetingLink: 'https://meeting.orrr.com/abc123',
@@ -86,6 +90,7 @@ export const mockHearings: Hearing[] = [
     id: 'h2',
     title: 'Evidence Review',
     description: 'Review of submitted evidence and documents',
+    caseId: 'c1', // Adding caseId property
     scheduledAt: new Date(Date.now() + 86400000 * 5).toISOString(), // 5 days from now
     duration: 90,
     meetingLink: 'https://meeting.orrr.com/def456',
@@ -94,6 +99,7 @@ export const mockHearings: Hearing[] = [
     id: 'h3',
     title: 'Final Resolution Meeting',
     description: 'Discussion of proposed resolution',
+    caseId: 'c2', // Adding caseId property
     scheduledAt: new Date(Date.now() + 86400000 * 10).toISOString(), // 10 days from now
     duration: 120,
     meetingLink: 'https://meeting.orrr.com/ghi789',
@@ -111,8 +117,12 @@ export const mockCases: Case[] = [
     updatedAt: '2023-03-20T14:30:00Z',
     clientId: '3',
     neutralId: '2',
+    createdBy: '3',
     documents: [mockDocuments[0], mockDocuments[1]],
     hearings: [mockHearings[0], mockHearings[1]],
+    parties: [], // Adding empty arrays for required properties
+    messages: [],
+    events: [],
   },
   {
     id: 'c2',
@@ -123,8 +133,12 @@ export const mockCases: Case[] = [
     createdAt: '2023-04-01T10:15:00Z',
     updatedAt: '2023-04-01T10:15:00Z',
     clientId: '5',
+    createdBy: '5',
     documents: [mockDocuments[2]],
     hearings: [],
+    parties: [], // Adding empty arrays for required properties
+    messages: [],
+    events: [],
   },
   {
     id: 'c3',
@@ -136,8 +150,12 @@ export const mockCases: Case[] = [
     updatedAt: '2023-03-25T16:45:00Z',
     clientId: '3',
     neutralId: '4',
+    createdBy: '3',
     documents: [],
     hearings: [mockHearings[2]],
+    parties: [], // Adding empty arrays for required properties
+    messages: [],
+    events: [],
   },
 ];
 

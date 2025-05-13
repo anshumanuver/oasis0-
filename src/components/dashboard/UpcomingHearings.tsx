@@ -12,7 +12,7 @@ interface UpcomingHearingsProps {
 export default function UpcomingHearings({ cases }: UpcomingHearingsProps) {
   // Extract hearings from cases and filter for upcoming ones
   const allHearings = cases.flatMap(caseItem => 
-    caseItem.hearings.map(hearing => ({
+    (caseItem.hearings || []).map(hearing => ({
       ...hearing,
       caseId: caseItem.id,
       caseTitle: caseItem.title,
@@ -21,8 +21,8 @@ export default function UpcomingHearings({ cases }: UpcomingHearingsProps) {
   
   const now = new Date();
   const upcomingHearings = allHearings
-    .filter(hearing => new Date(hearing.scheduledAt) > now)
-    .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime());
+    .filter(hearing => new Date(hearing.scheduledAt || '') > now)
+    .sort((a, b) => new Date(a.scheduledAt || '').getTime() - new Date(b.scheduledAt || '').getTime());
 
   const formatDateTime = (dateString: string) => {
     const date = new Date(dateString);
