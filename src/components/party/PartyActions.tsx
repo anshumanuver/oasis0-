@@ -1,13 +1,14 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { FileText, MessageSquare, Calendar, User, Check, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 export default function PartyActions() {
   const [uploading, setUploading] = useState(false);
   const [sending, setSending] = useState(false);
   const [requesting, setRequesting] = useState(false);
+  const navigate = useNavigate();
 
   // Mock document upload function
   const handleUploadDocument = () => {
@@ -88,20 +89,10 @@ export default function PartyActions() {
       <Button 
         variant="outline" 
         className="w-full justify-start"
-        disabled={sending}
-        onClick={handleContactMediator}
+        onClick={() => navigate('/messages')}
       >
-        {sending ? (
-          <>
-            <AlertCircle className="h-5 w-5 mr-2 animate-pulse text-yellow-500" />
-            Sending...
-          </>
-        ) : (
-          <>
-            <MessageSquare className="h-5 w-5 mr-2" />
-            Contact Mediator
-          </>
-        )}
+        <MessageSquare className="h-5 w-5 mr-2" />
+        Messages
       </Button>
       
       <Button 

@@ -16,6 +16,7 @@ import MediatorDashboard from "./pages/MediatorDashboard";
 import PartyDashboard from "./pages/PartyDashboard";
 import CaseForm from "./pages/CaseForm";
 import CaseDetail from "./pages/CaseDetail";
+import Messages from "./pages/Messages";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -121,6 +122,12 @@ const AppRoutes = () => {
       <Route path="/cases/:caseId" element={
         <ProtectedRoute>
           <CaseDetail />
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/messages" element={
+        <ProtectedRoute>
+          <Messages />
         </ProtectedRoute>
       } />
       

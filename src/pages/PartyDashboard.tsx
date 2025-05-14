@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -13,7 +12,7 @@ import CasesTable from '@/components/dashboard/CasesTable';
 import UpcomingHearings from '@/components/dashboard/UpcomingHearings';
 import { DashboardStats } from '@/types';
 import PartyActions from '@/components/party/PartyActions';
-import PartyMessages from '@/components/party/PartyMessages';
+import PartyMessagingWidget from '@/components/party/PartyMessagingWidget';
 import CaseProgress from '@/components/party/CaseProgress';
 import PartyDocuments from '@/components/party/PartyDocuments';
 import Chatbot from '@/components/chatbot/Chatbot';
@@ -124,14 +123,9 @@ export default function PartyDashboard() {
             <UpcomingHearings cases={partyCases} />
             
             {/* Recent Messages */}
-            <Card className="mt-6 mb-6">
-              <div className="p-6 border-b">
-                <h2 className="text-lg font-medium">Recent Messages</h2>
-              </div>
-              <div className="p-6">
-                <PartyMessages partyCases={partyCases} />
-              </div>
-            </Card>
+            <div className="mt-6 mb-6">
+              <PartyMessagingWidget partyCases={partyCases} />
+            </div>
             
             {/* Quick Actions */}
             <Card>
