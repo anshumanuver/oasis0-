@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { mockCases, generateDashboardStats } from '@/data/mockData';
-import { FileText, Calendar, CheckCircle, AlertTriangle, MessageSquare, User } from 'lucide-react';
+import { FileText, Calendar, MessageSquare, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import MainLayout from '@/components/layout/MainLayout';
@@ -40,9 +40,6 @@ export default function PartyDashboard() {
   
   // Get dashboard stats
   const stats: DashboardStats = generateDashboardStats(user.id, 'client');
-
-  // Get all documents from all cases
-  const allDocuments = partyCases.flatMap(caseItem => caseItem.documents);
 
   return (
     <MainLayout withFooter={false}>
@@ -109,7 +106,7 @@ export default function PartyDashboard() {
             {/* Documents */}
             <Card className="mb-6">
               <div className="p-6">
-                <PartyDocuments documents={allDocuments} />
+                <PartyDocuments caseId={partyCases.length > 0 ? partyCases[0].id : undefined} />
               </div>
             </Card>
             
