@@ -16,6 +16,7 @@ import PartyActions from '@/components/party/PartyActions';
 import PartyMessages from '@/components/party/PartyMessages';
 import CaseProgress from '@/components/party/CaseProgress';
 import PartyDocuments from '@/components/party/PartyDocuments';
+import Chatbot from '@/components/chatbot/Chatbot';
 
 export default function PartyDashboard() {
   const { user, profile, isLoading } = useAuth();
@@ -147,6 +148,9 @@ export default function PartyDashboard() {
           </div>
         </div>
       </div>
+      
+      {/* Chatbot Component */}
+      <Chatbot />
     </MainLayout>
   );
 }
