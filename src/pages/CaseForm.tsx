@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
@@ -27,7 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { createCase } from '@/integrations/supabase/cases';
+import { createCase, CaseCreateDTO } from '@/integrations/supabase/cases';
 
 const formSchema = z.object({
   title: z.string().min(3, {
@@ -56,7 +57,8 @@ export default function CaseForm() {
     },
   });
 
-  const { mutate: createNewCase } = useMutation(createCase, {
+  const { mutate: createNewCase } = useMutation({
+    mutationFn: createCase,
     onSuccess: () => {
       toast({
         title: "Case created",
@@ -87,10 +89,12 @@ export default function CaseForm() {
       return;
     }
 
-    createNewCase({
+    const caseData: CaseCreateDTO = {
       ...values,
       createdBy: user.id,
-    });
+    };
+
+    createNewCase(caseData);
   };
 
   return (
