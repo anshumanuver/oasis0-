@@ -55,24 +55,24 @@ export const mockDocuments: Document[] = [
     name: 'Contract Agreement.pdf',
     url: '#',
     uploadedAt: '2023-03-15T10:30:00Z',
-    size: 0, // Adding size property
-    uploadedBy: '3',
+    size: 2540000,
+    type: 'application/pdf'
   },
   {
     id: 'd2',
     name: 'Evidence Document.pdf',
     url: '#',
     uploadedAt: '2023-03-16T08:20:00Z',
-    size: 0, // Adding size property
-    uploadedBy: '3',
+    size: 5640000,
+    type: 'application/pdf'
   },
   {
     id: 'd3',
     name: 'Witness Statement.pdf',
     url: '#',
     uploadedAt: '2023-03-20T14:15:00Z',
-    size: 0, // Adding size property
-    uploadedBy: '5',
+    size: 3280000,
+    type: 'application/pdf'
   },
 ];
 

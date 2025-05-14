@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -42,13 +43,51 @@ const fetchCaseById = async (caseId: string): Promise<Case> => {
           { id: 'doc-2', name: 'Communication Records.zip', uploadedAt: '2025-04-15T09:30:00Z', size: 5640000 }
         ],
         messages: [
-          { id: 'msg-1', sender: 'Mediator Johnson', content: "I have reviewed the case and would like to schedule an initial hearing.", sentAt: '2025-04-20T13:15:00Z' },
-          { id: 'msg-2', sender: 'XYZ Corp Representative', content: "We are available next Tuesday afternoon.", sentAt: '2025-04-21T10:45:00Z' }
+          { 
+            id: 'msg-1', 
+            sender: 'Mediator Johnson', 
+            content: "I have reviewed the case and would like to schedule an initial hearing.", 
+            senderId: 'mediator-1',
+            sentAt: '2025-04-20T13:15:00Z',
+            timestamp: '2025-04-20T13:15:00Z'
+          },
+          { 
+            id: 'msg-2', 
+            sender: 'XYZ Corp Representative', 
+            content: "We are available next Tuesday afternoon.", 
+            senderId: 'party-2',
+            sentAt: '2025-04-21T10:45:00Z',
+            timestamp: '2025-04-21T10:45:00Z'
+          }
         ],
         events: [
-          { id: 'event-1', title: 'Case Filed', description: 'Initial case documentation submitted', date: '2025-04-10T10:30:00Z' },
-          { id: 'event-2', title: 'Mediator Assigned', description: 'Jeffrey Johnson assigned as mediator', date: '2025-04-18T14:00:00Z' },
-          { id: 'event-3', title: 'First Hearing Scheduled', description: 'Virtual hearing scheduled for May 15', date: '2025-04-22T09:15:00Z' }
+          { 
+            id: 'event-1', 
+            title: 'Case Filed', 
+            description: 'Initial case documentation submitted', 
+            date: '2025-04-10T10:30:00Z',
+            caseId: caseId,
+            type: 'filing',
+            timestamp: '2025-04-10T10:30:00Z'
+          },
+          { 
+            id: 'event-2', 
+            title: 'Mediator Assigned', 
+            description: 'Jeffrey Johnson assigned as mediator', 
+            date: '2025-04-18T14:00:00Z',
+            caseId: caseId,
+            type: 'assignment',
+            timestamp: '2025-04-18T14:00:00Z'
+          },
+          { 
+            id: 'event-3', 
+            title: 'First Hearing Scheduled', 
+            description: 'Virtual hearing scheduled for May 15', 
+            date: '2025-04-22T09:15:00Z',
+            caseId: caseId,
+            type: 'scheduling',
+            timestamp: '2025-04-22T09:15:00Z'
+          }
         ],
         nextHearingDate: '2025-05-15T14:00:00Z'
       });

@@ -15,6 +15,7 @@ import { DashboardStats } from '@/types';
 import PartyActions from '@/components/party/PartyActions';
 import PartyMessages from '@/components/party/PartyMessages';
 import CaseProgress from '@/components/party/CaseProgress';
+import PartyDocuments from '@/components/party/PartyDocuments';
 
 export default function PartyDashboard() {
   const { user, profile, isLoading } = useAuth();
@@ -38,6 +39,9 @@ export default function PartyDashboard() {
   
   // Get dashboard stats
   const stats: DashboardStats = generateDashboardStats(user.id, 'client');
+
+  // Get all documents from all cases
+  const allDocuments = partyCases.flatMap(caseItem => caseItem.documents);
 
   return (
     <MainLayout withFooter={false}>
@@ -100,6 +104,13 @@ export default function PartyDashboard() {
                 </div>
               </Card>
             )}
+            
+            {/* Documents */}
+            <Card className="mb-6">
+              <div className="p-6">
+                <PartyDocuments documents={allDocuments} />
+              </div>
+            </Card>
             
             {/* Start New Case button */}
             <div className="mt-6">

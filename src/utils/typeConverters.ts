@@ -9,7 +9,7 @@ export const convertToTimelineEvents = (events: Event[]): TimelineEvent[] => {
     id: event.id,
     title: event.title || event.type,
     description: event.description,
-    date: typeof event.date === 'string' ? event.date : event.date.toString()
+    date: event.date
   }));
 };
 
