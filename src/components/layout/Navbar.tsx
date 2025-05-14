@@ -49,6 +49,8 @@ export default function Navbar() {
   const getDashboardLink = () => {
     if (profile?.role === 'neutral') {
       return '/mediator-dashboard';
+    } else if (profile?.role === 'client') {
+      return '/party-dashboard';
     }
     return '/dashboard';
   };
@@ -79,6 +81,11 @@ export default function Navbar() {
                 {profile?.role === 'neutral' && (
                   <Link to="/hearings" className="nav-link">
                     Hearings
+                  </Link>
+                )}
+                {profile?.role === 'client' && (
+                  <Link to="/messages" className="nav-link">
+                    Messages
                   </Link>
                 )}
                 {profile?.role === 'admin' && (
@@ -172,6 +179,15 @@ export default function Navbar() {
                     Hearings
                   </Link>
                 )}
+                {profile?.role === 'client' && (
+                  <Link
+                    to="/messages"
+                    className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Messages
+                  </Link>
+                )}
                 {profile?.role === 'admin' && (
                   <Link
                     to="/admin"
@@ -181,6 +197,7 @@ export default function Navbar() {
                     Admin Panel
                   </Link>
                 )}
+                
                 <div className="pt-4 pb-3 border-t border-gray-200">
                   <div className="flex items-center px-3">
                     <div className="flex-shrink-0">

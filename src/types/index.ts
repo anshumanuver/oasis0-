@@ -1,3 +1,4 @@
+
 export interface UserProfile {
   id: string;
   first_name: string;
@@ -15,7 +16,6 @@ export interface UserProfile {
   updated_at: string;
 }
 
-// Add the User type needed by mockData.ts
 export interface User {
   id: string;
   name: string;
@@ -28,7 +28,6 @@ export interface User {
 
 export type UserRole = 'client' | 'neutral' | 'admin';
 
-// Add CaseStatus and DisputeType types
 export type CaseStatus = 'pending' | 'in_progress' | 'resolved';
 export type DisputeType = 'negotiation' | 'mediation' | 'arbitration' | 'conciliation';
 
@@ -48,10 +47,9 @@ export interface Case {
   nextHearingDate?: string;
   clientId?: string;
   neutralId?: string;
-  hearings?: Hearing[]; // Add hearings property for UpcomingHearings component
+  hearings?: Hearing[];
 }
 
-// Update Party type to include required fields
 export interface Party {
   id: string;
   name: string;
@@ -62,17 +60,15 @@ export interface Party {
   isClient?: boolean;
 }
 
-// Update Message type to include required fields
 export interface Message {
   id: string;
   sender: string;
   senderId: string;
   content: string;
   sentAt: string;
-  timestamp: Date | string;
+  timestamp: string;
 }
 
-// Update Event type to include required fields
 export interface Event {
   id: string;
   caseId: string;
@@ -80,10 +76,9 @@ export interface Event {
   description: string;
   date: string;
   type: string;
-  timestamp: Date | string;
+  timestamp: string;
 }
 
-// Update Document type if needed
 export interface Document {
   id: string;
   name: string;
@@ -113,9 +108,9 @@ export interface Hearing {
   date?: string;
   title: string;
   description?: string;
-  scheduledAt?: string; // Add for mockData.ts
-  duration?: number;    // Add for mockData.ts
-  meetingLink?: string; // Add for mockData.ts
+  scheduledAt?: string;
+  duration?: number;
+  meetingLink?: string;
 }
 
 export interface Trend {
@@ -123,7 +118,6 @@ export interface Trend {
   isPositive: boolean;
 }
 
-// Add MediatorStats type for dashboard
 export interface MediatorStats {
   activeCases: number;
   resolvedCases: number;
@@ -132,7 +126,6 @@ export interface MediatorStats {
   resolutionRate: number;
 }
 
-// Add CaseAssignment type
 export interface CaseAssignment {
   id: string;
   caseId: string;

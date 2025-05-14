@@ -13,6 +13,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import MediatorDashboard from "./pages/MediatorDashboard";
+import PartyDashboard from "./pages/PartyDashboard";
 import CaseForm from "./pages/CaseForm";
 import CaseDetail from "./pages/CaseDetail";
 import NotFound from "./pages/NotFound";
@@ -72,6 +73,8 @@ const AppRoutes = () => {
   const handleDashboardRedirect = () => {
     if (profile?.role === 'neutral') {
       return <Navigate to="/mediator-dashboard" />;
+    } else if (profile?.role === 'client') {
+      return <Navigate to="/party-dashboard" />;
     }
     return <Navigate to="/dashboard" />;
   };
@@ -100,6 +103,12 @@ const AppRoutes = () => {
       <Route path="/mediator-dashboard" element={
         <RoleRoute allowedRoles={['neutral', 'admin']}>
           <MediatorDashboard />
+        </RoleRoute>
+      } />
+
+      <Route path="/party-dashboard" element={
+        <RoleRoute allowedRoles={['client']}>
+          <PartyDashboard />
         </RoleRoute>
       } />
       
