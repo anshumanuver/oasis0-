@@ -1,21 +1,21 @@
 
 import { supabase } from './client';
 
-export interface CreateNotificationDTO {
-  recipientId: string;
+export interface CreateNotificationParams {
+  recipient_id: string;
   title: string;
   content: string;
-  relatedToCaseId?: string;
+  related_to_case?: string;
 }
 
-export async function createNotification(notificationData: CreateNotificationDTO) {
+export async function createNotification(params: CreateNotificationParams) {
   const { data, error } = await supabase
     .from('notifications')
     .insert({
-      recipient_id: notificationData.recipientId,
-      title: notificationData.title,
-      content: notificationData.content,
-      related_to_case: notificationData.relatedToCaseId,
+      recipient_id: params.recipient_id,
+      title: params.title,
+      content: params.content,
+      related_to_case: params.related_to_case || null,
       is_read: false
     })
     .select()
@@ -27,6 +27,21 @@ export async function createNotification(notificationData: CreateNotificationDTO
   }
 
   return data;
+}
+
+export async function getUnreadNotificationsCount(userId: string) {
+  const { count, error } = await supabase
+    .from('notifications')
+    .select('*', { count: 'exact', head: true })
+    .eq('recipient_id', userId)
+    .eq('is_read', false);
+
+  if (error) {
+    console.error('Error counting unread notifications:', error);
+    throw error;
+  }
+
+  return count || 0;
 }
 
 export async function markNotificationAsRead(notificationId: string) {
@@ -50,8 +65,7 @@ export async function markAllNotificationsAsRead(userId: string) {
     .from('notifications')
     .update({ is_read: true })
     .eq('recipient_id', userId)
-    .eq('is_read', false)
-    .select();
+    .eq('is_read', false);
 
   if (error) {
     console.error('Error marking all notifications as read:', error);
@@ -61,17 +75,62 @@ export async function markAllNotificationsAsRead(userId: string) {
   return data;
 }
 
-export async function getNotificationsCount(userId: string) {
-  const { count, error } = await supabase
+export async function deleteNotification(notificationId: string) {
+  const { error } = await supabase
     .from('notifications')
-    .select('*', { count: 'exact', head: true })
-    .eq('recipient_id', userId)
-    .eq('is_read', false);
+    .delete()
+    .eq('id', notificationId);
 
   if (error) {
-    console.error('Error getting notifications count:', error);
+    console.error('Error deleting notification:', error);
     throw error;
   }
+}
 
-  return count || 0;
+export async function setupNotificationsForHearing(hearingId: string, caseId: string, partyIds: string[], neutralId?: string) {
+  // Get hearing details
+  const { data: hearingData, error: hearingError } = await supabase
+    .from('hearings')
+    .select('*')
+    .eq('id', hearingId)
+    .single();
+    
+  if (hearingError) {
+    console.error('Error fetching hearing details:', hearingError);
+    throw hearingError;
+  }
+  
+  const title = 'New Hearing Scheduled';
+  const content = `A hearing for case "${hearingData.title}" has been scheduled for ${new Date(hearingData.scheduled_at).toLocaleString()}`;
+  
+  // Create notifications for all parties
+  const notifications = partyIds.map(partyId => ({
+    recipient_id: partyId,
+    title,
+    content,
+    related_to_case: caseId
+  }));
+  
+  // Add notification for neutral if provided
+  if (neutralId) {
+    notifications.push({
+      recipient_id: neutralId,
+      title,
+      content,
+      related_to_case: caseId
+    });
+  }
+  
+  // Insert all notifications
+  const { data, error } = await supabase
+    .from('notifications')
+    .insert(notifications)
+    .select();
+    
+  if (error) {
+    console.error('Error creating hearing notifications:', error);
+    throw error;
+  }
+  
+  return data;
 }

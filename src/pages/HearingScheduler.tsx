@@ -1,12 +1,11 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { format } from 'date-fns';
 import { Calendar as CalendarIcon, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
-import { useNotification } from '@/hooks/use-notification';
 import MainLayout from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,6 +33,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { HearingCreateDTO, createHearing } from '@/integrations/supabase/hearings';
+import { setupNotificationsForHearing } from '@/integrations/supabase/notifications';
+import { mockCases } from '@/data/mockData';
 
 interface HearingFormValues {
   title: string;
@@ -50,8 +52,17 @@ export default function HearingScheduler() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
-  const { sendNotification } = useNotification();
   const [isLoading, setIsLoading] = useState(false);
+  const [caseData, setCaseData] = useState<any>(null);
+
+  useEffect(() => {
+    // In a real implementation, we would fetch the case data from the database
+    // For now, we'll use the mock data
+    if (caseId) {
+      const foundCase = mockCases.find(c => c.id === caseId);
+      setCaseData(foundCase);
+    }
+  }, [caseId]);
 
   const form = useForm<HearingFormValues>({
     defaultValues: {
@@ -83,9 +94,7 @@ export default function HearingScheduler() {
       const scheduledAt = new Date(data.date);
       scheduledAt.setHours(hours, minutes);
 
-      // Here you would call your API to schedule the hearing
-      // For now, we'll simulate a successful API call
-      const hearingData = {
+      const hearingData: HearingCreateDTO = {
         caseId,
         title: data.title,
         scheduledAt: scheduledAt.toISOString(),
@@ -95,21 +104,30 @@ export default function HearingScheduler() {
         scheduledBy: user.id,
       };
 
-      console.log('Scheduling hearing:', hearingData);
-      
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Create the hearing in the database
+      const newHearing = await createHearing(hearingData);
+
+      // Get party IDs from the case data to send notifications
+      const partyIds: string[] = [];
+      if (caseData && caseData.parties) {
+        caseData.parties.forEach((party: any) => {
+          if (party.id !== user.id) { // Don't notify the scheduler
+            partyIds.push(party.id);
+          }
+        });
+      }
+
+      // Create notifications for all case participants
+      await setupNotificationsForHearing(
+        newHearing.id, 
+        caseId, 
+        partyIds,
+        caseData?.neutralId // Notify the neutral (mediator/arbitrator) if there is one
+      );
 
       toast({
         title: "Hearing scheduled",
         description: "All participants have been notified",
-      });
-
-      // Send notifications to participants (in real app, you'd get participants from the case)
-      sendNotification({
-        title: "New Hearing Scheduled",
-        content: `A hearing for case has been scheduled for ${format(scheduledAt, 'PPP p')}`,
-        relatedToCaseId: caseId,
       });
 
       // Navigate back to case detail

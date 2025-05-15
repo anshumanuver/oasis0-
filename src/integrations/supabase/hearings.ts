@@ -66,7 +66,9 @@ export async function getUpcomingHearingsForUser(userId: string) {
   return data || [];
 }
 
-export async function updateHearingStatus(hearingId: string, status: 'scheduled' | 'in_progress' | 'completed' | 'cancelled') {
+export type HearingStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
+
+export async function updateHearingStatus(hearingId: string, status: HearingStatus) {
   const { data, error } = await supabase
     .from('hearings')
     .update({ status })

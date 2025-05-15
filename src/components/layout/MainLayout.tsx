@@ -4,17 +4,20 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import { useAuth } from '@/context/AuthContext';
+import { NotificationsPanel } from '../notifications/NotificationsPanel';
 
 interface MainLayoutProps {
   children: ReactNode;
   withFooter?: boolean;
   requireAuth?: boolean;
+  showNotifications?: boolean;
 }
 
 export default function MainLayout({ 
   children, 
   withFooter = true, 
-  requireAuth = false 
+  requireAuth = false,
+  showNotifications = true
 }: MainLayoutProps) {
   const { user, isLoading } = useAuth();
   const navigate = useNavigate();
@@ -37,6 +40,11 @@ export default function MainLayout({
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
+      {showNotifications && user && (
+        <div className="fixed top-16 right-4 z-50">
+          <NotificationsPanel />
+        </div>
+      )}
       <main className="flex-grow pt-16">
         {children}
       </main>
