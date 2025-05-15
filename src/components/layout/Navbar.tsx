@@ -13,6 +13,7 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { Menu, X, Bell, User } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import NotificationCenter from '@/components/notifications/NotificationCenter';
 
 export default function Navbar() {
   const { user, profile, signOut } = useAuth();
@@ -93,9 +94,10 @@ export default function Navbar() {
                     Admin Panel
                   </Link>
                 )}
-                <Button variant="ghost" size="icon" className="text-gray-500">
-                  <Bell size={20} />
-                </Button>
+                
+                {/* Add NotificationCenter here */}
+                <NotificationCenter />
+                
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-10 w-10 rounded-full">
@@ -197,6 +199,20 @@ export default function Navbar() {
                     Admin Panel
                   </Link>
                 )}
+                
+                {/* Add mobile notifications link */}
+                <Link
+                  to="#"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 flex items-center justify-between"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setMobileMenuOpen(false);
+                    // Mobile notifications handling would go here
+                  }}
+                >
+                  Notifications
+                  <NotificationCenter />
+                </Link>
                 
                 <div className="pt-4 pb-3 border-t border-gray-200">
                   <div className="flex items-center px-3">
