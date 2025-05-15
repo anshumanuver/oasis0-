@@ -127,11 +127,11 @@ export default function CaseDetail() {
           </TabsList>
           
           <TabsContent value="timeline" className="mt-6">
-            <CaseTimeline caseData={caseData} />
+            <CaseTimeline events={caseData.events || []} />
           </TabsContent>
           
           <TabsContent value="documents" className="mt-6">
-            <CaseDocuments caseId={caseData.id} />
+            <CaseDocuments documents={caseData.documents || []} />
           </TabsContent>
           
           <TabsContent value="messages" className="mt-6">

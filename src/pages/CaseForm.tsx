@@ -28,7 +28,7 @@ export default function CaseForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [disputeType, setDisputeType] = useState<DisputeType>('commercial');
+  const [disputeType, setDisputeType] = useState<DisputeType>('mediation');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -108,12 +108,10 @@ export default function CaseForm() {
                 <SelectValue placeholder="Select dispute type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="commercial">Commercial Dispute</SelectItem>
-                <SelectItem value="employment">Employment Dispute</SelectItem>
-                <SelectItem value="family">Family Dispute</SelectItem>
-                <SelectItem value="consumer">Consumer Complaint</SelectItem>
-                <SelectItem value="property">Property Dispute</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
+                <SelectItem value="negotiation">Negotiation</SelectItem>
+                <SelectItem value="mediation">Mediation</SelectItem>
+                <SelectItem value="arbitration">Arbitration</SelectItem>
+                <SelectItem value="conciliation">Conciliation</SelectItem>
               </SelectContent>
             </Select>
           </div>

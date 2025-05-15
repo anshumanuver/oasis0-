@@ -18,6 +18,8 @@ import CaseForm from "./pages/CaseForm";
 import CaseDetail from "./pages/CaseDetail";
 import Messages from "./pages/Messages";
 import NotFound from "./pages/NotFound";
+import HearingsList from "./pages/HearingsList";
+import HearingScheduler from "./pages/HearingScheduler";
 
 const queryClient = new QueryClient();
 
@@ -128,6 +130,25 @@ const AppRoutes = () => {
       <Route path="/messages" element={
         <ProtectedRoute>
           <Messages />
+        </ProtectedRoute>
+      } />
+      
+      {/* Hearings routes */}
+      <Route path="/hearings" element={
+        <ProtectedRoute>
+          <HearingsList />
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/hearings/new" element={
+        <ProtectedRoute>
+          <HearingScheduler />
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/cases/:caseId/schedule-hearing" element={
+        <ProtectedRoute>
+          <HearingScheduler />
         </ProtectedRoute>
       } />
       
