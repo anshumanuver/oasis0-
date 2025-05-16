@@ -1,141 +1,121 @@
 
-import { useState } from 'react';
-import { format } from 'date-fns';
-import { Bell, Check, CheckCheck, Trash2 } from 'lucide-react';
-import { useRealTimeNotifications, Notification } from '@/hooks/use-notifications';
-import { Button } from '@/components/ui/button';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet';
+import { useState, useEffect } from 'react';
+import { useRealTimeNotifications } from '@/hooks/use-notifications';
+import { Bell } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/AuthContext';
 
 export function NotificationsPanel() {
-  const { notifications, unreadCount, isLoading, markAsRead, markAllAsRead } = useRealTimeNotifications();
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+  const { notifications, unreadCount, markAllAsRead } = useRealTimeNotifications();
+  const { toast } = useToast();
+  const { user } = useAuth();
   
-  const formatTime = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-      const now = new Date();
-      const diffMs = now.getTime() - date.getTime();
-      const diffMins = Math.round(diffMs / 60000);
-      const diffHours = Math.round(diffMins / 60);
-      const diffDays = Math.round(diffHours / 24);
-      
-      if (diffMins < 60) {
-        return `${diffMins}m ago`;
-      } else if (diffHours < 24) {
-        return `${diffHours}h ago`;
-      } else if (diffDays < 7) {
-        return `${diffDays}d ago`;
-      } else {
-        return format(date, 'MMM d, yyyy');
+  // Close notifications panel when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('#notifications-panel') && !target.closest('#notifications-button')) {
+        setOpen(false);
       }
-    } catch (e) {
-      return 'Unknown date';
-    }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+  
+  const togglePanel = () => {
+    setOpen(!open);
   };
   
-  const handleNotificationClick = (notification: Notification) => {
-    if (!notification.is_read) {
-      markAsRead(notification.id);
-    }
+  const handleMarkAllAsRead = async () => {
+    if (!user) return;
     
-    // If this notification is related to a case, navigate to that case
-    if (notification.related_to_case) {
-      setIsOpen(false);
-      // In a real implementation, we would navigate to the case page
-      // navigate(`/cases/${notification.related_to_case}`);
+    try {
+      await markAllAsRead();
+      toast({
+        title: "Success",
+        description: "All notifications marked as read",
+      });
+    } catch (error) {
+      console.error('Error marking notifications as read:', error);
     }
   };
   
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-5 w-5" />
-          {unreadCount > 0 && (
-            <Badge className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center p-0 text-[10px]" variant="destructive">
-              {unreadCount > 99 ? '99+' : unreadCount}
-            </Badge>
-          )}
-        </Button>
-      </SheetTrigger>
-      <SheetContent className="w-[380px] sm:w-[420px] p-0">
-        <SheetHeader className="p-4 border-b">
-          <div className="flex items-center justify-between">
-            <SheetTitle className="flex items-center gap-2">
-              <Bell className="h-5 w-5" />
-              Notifications
-            </SheetTitle>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={markAllAsRead} 
-              disabled={unreadCount === 0}
-              className="text-xs"
-            >
-              <CheckCheck className="h-4 w-4 mr-1" />
-              Mark all read
-            </Button>
+    <>
+      <Button
+        id="notifications-button"
+        variant="ghost" 
+        size="icon" 
+        className="relative"
+        onClick={togglePanel}
+      >
+        <Bell className="h-5 w-5" />
+        {unreadCount > 0 && (
+          <Badge 
+            className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center bg-red-500"
+            variant="destructive"
+          >
+            {unreadCount > 9 ? '9+' : unreadCount}
+          </Badge>
+        )}
+      </Button>
+      
+      {open && (
+        <div 
+          id="notifications-panel"
+          className="absolute top-12 right-0 w-80 bg-white rounded-md shadow-lg z-50 border"
+        >
+          <div className="p-3 border-b flex justify-between items-center">
+            <h3 className="text-sm font-medium">Notifications</h3>
+            {unreadCount > 0 && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-xs h-6"
+                onClick={handleMarkAllAsRead}
+              >
+                Mark all as read
+              </Button>
+            )}
           </div>
-        </SheetHeader>
-        
-        <ScrollArea className="h-[calc(100vh-56px)]">
-          {isLoading ? (
-            <div className="flex justify-center items-center py-8">
-              <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-primary"></div>
-            </div>
-          ) : notifications.length === 0 ? (
-            <div className="py-8 text-center text-muted-foreground">
-              <Bell className="h-12 w-12 mx-auto opacity-20" />
-              <p className="mt-2">No notifications yet</p>
-            </div>
-          ) : (
-            <div>
-              {notifications.map((notification) => (
+          
+          <div className="max-h-80 overflow-y-auto">
+            {notifications.length === 0 ? (
+              <div className="p-4 text-center text-gray-500">
+                <Bell className="mx-auto h-8 w-8 opacity-40 mb-2" />
+                <p className="text-sm">No notifications</p>
+              </div>
+            ) : (
+              notifications.map(notification => (
                 <div 
-                  key={notification.id}
-                  className={`p-4 hover:bg-accent/50 cursor-pointer ${!notification.is_read ? 'bg-accent/20' : ''}`}
-                  onClick={() => handleNotificationClick(notification)}
+                  key={notification.id} 
+                  className={`p-3 border-b text-sm ${!notification.is_read ? 'bg-muted/30' : ''}`}
                 >
-                  <div className="flex justify-between items-start mb-1">
-                    <h4 className="font-medium text-sm">
-                      {notification.title}
-                    </h4>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground">
-                        {formatTime(notification.created_at)}
-                      </span>
-                      {!notification.is_read && (
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-6 w-6" 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            markAsRead(notification.id);
-                          }}
-                        >
-                          <Check className="h-3 w-3" />
-                        </Button>
-                      )}
-                    </div>
+                  <div className="flex justify-between mb-1">
+                    <h4 className="font-medium">{notification.title}</h4>
+                    <span className="text-xs text-gray-500">
+                      {new Date(notification.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
                   </div>
-                  <p className="text-sm text-muted-foreground">{notification.content}</p>
-                  <Separator className="mt-3" />
+                  <p className="text-gray-600 text-xs">{notification.content}</p>
                 </div>
-              ))}
+              ))
+            )}
+          </div>
+          
+          {notifications.length > 0 && (
+            <div className="p-2 border-t text-center">
+              <Button variant="link" size="sm" className="text-xs h-6 mx-auto">
+                View all
+              </Button>
             </div>
           )}
-        </ScrollArea>
-      </SheetContent>
-    </Sheet>
+        </div>
+      )}
+    </>
   );
 }
