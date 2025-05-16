@@ -1,42 +1,79 @@
-
+import { format, isAfter, addMinutes, differenceInDays } from 'date-fns';
 import { HearingStatus } from '@/integrations/supabase/hearings';
 
-export function getHearingStatusColor(status: HearingStatus): string {
-  switch (status) {
-    case 'scheduled':
-      return 'bg-blue-100 text-blue-800';
-    case 'in_progress':
-      return 'bg-amber-100 text-amber-800';
-    case 'completed':
-      return 'bg-green-100 text-green-800';
-    case 'cancelled':
-      return 'bg-red-100 text-red-800';
-    default:
-      return 'bg-gray-100 text-gray-800';
-  }
-}
-
-export function canJoinHearing(scheduledAt: string, status: HearingStatus): boolean {
+export const getStatusBadgeVariant = (status: HearingStatus, scheduledAt: string) => {
   const now = new Date();
   const hearingTime = new Date(scheduledAt);
+  const hearingEndTime = addMinutes(hearingTime, 15); // 15 min buffer
   
-  // Allow joining 15 minutes before the scheduled time
-  const joinWindow = new Date(hearingTime);
-  joinWindow.setMinutes(joinWindow.getMinutes() - 15);
-  
-  return (status === 'scheduled' || status === 'in_progress') && now >= joinWindow;
-}
-
-export function formatHearingDuration(minutes: number): string {
-  if (minutes < 60) {
-    return `${minutes} minutes`;
-  } else {
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
-    if (remainingMinutes === 0) {
-      return `${hours} hour${hours > 1 ? 's' : ''}`;
-    } else {
-      return `${hours} hour${hours > 1 ? 's' : ''} ${remainingMinutes} min`;
-    }
+  // Determine if hearing is currently live
+  const isLive = status === 'scheduled' && 
+    isAfter(now, hearingTime) || 
+    (now >= hearingTime && now <= hearingEndTime);
+    
+  if (isLive) {
+    return 'live';
   }
-}
+  
+  return status;
+};
+
+export const formatHearingDate = (dateString: string): string => {
+  const now = new Date();
+  const hearingDate = new Date(dateString);
+  
+  // If today
+  if (now.toDateString() === hearingDate.toDateString()) {
+    return `Today at ${format(hearingDate, 'h:mm a')}`;
+  }
+  
+  // If tomorrow
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  if (tomorrow.toDateString() === hearingDate.toDateString()) {
+    return `Tomorrow at ${format(hearingDate, 'h:mm a')}`;
+  }
+  
+  // If within the next 7 days
+  const daysUntil = differenceInDays(hearingDate, now);
+  if (daysUntil < 7) {
+    return `${format(hearingDate, 'EEEE')} at ${format(hearingDate, 'h:mm a')}`;
+  }
+  
+  // Otherwise full date
+  return format(hearingDate, 'MMM d, yyyy - h:mm a');
+};
+
+export const getHearingTimeUntil = (dateString: string): string => {
+  const now = new Date();
+  const hearingTime = new Date(dateString);
+  
+  if (!isAfter(hearingTime, now)) {
+    return 'Now';
+  }
+  
+  const diffMs = hearingTime.getTime() - now.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+  
+  if (diffDays > 0) {
+    return `${diffDays} day${diffDays > 1 ? 's' : ''} from now`;
+  } else if (diffHours > 0) {
+    return `${diffHours} hour${diffHours > 1 ? 's' : ''} from now`;
+  } else {
+    return `${diffMins} minute${diffMins > 1 ? 's' : ''} from now`;
+  }
+};
+
+export const canJoinHearing = (status: HearingStatus, scheduledAt: string, meetingLink?: string) => {
+  const now = new Date();
+  const hearingTime = new Date(scheduledAt);
+  const joinWindow = addMinutes(hearingTime, -15); // Can join 15 minutes before
+  
+  return (
+    (status === 'scheduled' || status === 'in_progress') && 
+    isAfter(now, joinWindow) &&
+    !!meetingLink
+  );
+};
