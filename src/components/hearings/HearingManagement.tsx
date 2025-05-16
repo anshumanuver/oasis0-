@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { format, isAfter, isBefore, addMinutes } from 'date-fns';
 import { useAuth } from '@/context/AuthContext';
-import { getUpcomingHearingsForUser, updateHearingStatus, HearingStatus } from '@/integrations/supabase/hearings';
+import { getUpcomingHearingsForUser } from '@/integrations/supabase/hearings';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { Clock, Calendar, Video, ArrowRight } from 'lucide-react';
+import { formatHearingDate, getHearingTimeUntil, canJoinHearing } from '@/utils/hearingHelpers';
+import HearingStatusBadge from './HearingStatusBadge';
+import { HearingStatus } from '@/integrations/supabase/hearings';
 
 interface HearingData {
   id: string;
@@ -84,84 +84,6 @@ export default function HearingManagement() {
     }
   };
 
-  const getStatusBadge = (status: HearingStatus, scheduledAt: string) => {
-    const now = new Date();
-    const hearingTime = new Date(scheduledAt);
-    const hearingEndTime = addMinutes(hearingTime, 15); // Buffer time after scheduled start
-    
-    // Show "Live Now" for hearings that should be in progress
-    if (status === 'scheduled' && isAfter(now, hearingTime) && isBefore(now, hearingEndTime)) {
-      return <Badge className="bg-red-500">Live Now</Badge>;
-    }
-    
-    switch (status) {
-      case 'scheduled':
-        return <Badge variant="outline">Scheduled</Badge>;
-      case 'in_progress':
-        return <Badge className="bg-amber-500">In Progress</Badge>;
-      case 'completed':
-        return <Badge variant="secondary">Completed</Badge>;
-      case 'cancelled':
-        return <Badge variant="destructive">Cancelled</Badge>;
-      default:
-        return <Badge variant="outline">Scheduled</Badge>;
-    }
-  };
-
-  const formatHearingTime = (dateString: string) => {
-    const now = new Date();
-    const hearingTime = new Date(dateString);
-    
-    // If the hearing is today, just show the time
-    if (now.toDateString() === hearingTime.toDateString()) {
-      return `Today at ${format(hearingTime, 'h:mm a')}`;
-    }
-    
-    // If the hearing is tomorrow, show "Tomorrow"
-    const tomorrow = new Date(now);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    if (tomorrow.toDateString() === hearingTime.toDateString()) {
-      return `Tomorrow at ${format(hearingTime, 'h:mm a')}`;
-    }
-    
-    // Otherwise show the full date
-    return format(hearingTime, 'EEE, MMM d, yyyy - h:mm a');
-  };
-
-  const getTimeUntil = (dateString: string) => {
-    const now = new Date();
-    const hearingTime = new Date(dateString);
-    
-    if (isAfter(now, hearingTime)) {
-      return 'Now';
-    }
-    
-    const diffMs = hearingTime.getTime() - now.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMins / 60);
-    const diffDays = Math.floor(diffHours / 24);
-    
-    if (diffDays > 0) {
-      return `${diffDays} day${diffDays > 1 ? 's' : ''} from now`;
-    } else if (diffHours > 0) {
-      return `${diffHours} hour${diffHours > 1 ? 's' : ''} from now`;
-    } else {
-      return `${diffMins} minute${diffMins > 1 ? 's' : ''} from now`;
-    }
-  };
-
-  const canJoinHearing = (hearing: HearingData) => {
-    const now = new Date();
-    const hearingTime = new Date(hearing.scheduled_at);
-    const joinWindow = addMinutes(hearingTime, -15); // Can join 15 minutes before
-    
-    return (
-      (hearing.status === 'scheduled' || hearing.status === 'in_progress') && 
-      isAfter(now, joinWindow) &&
-      hearing.meeting_link
-    );
-  };
-
   return (
     <Card>
       <CardHeader>
@@ -190,21 +112,21 @@ export default function HearingManagement() {
                   <div>
                     <div className="flex items-center gap-2">
                       <h3 className="font-semibold text-lg">{hearing.title}</h3>
-                      {getStatusBadge(hearing.status, hearing.scheduled_at)}
+                      <HearingStatusBadge status={hearing.status} scheduledAt={hearing.scheduled_at} />
                     </div>
                     <p className="text-sm text-muted-foreground mt-1">
                       Case: {hearing.case_title}
                     </p>
                   </div>
                   <div className="text-xs font-medium px-3 py-1 rounded-full bg-primary/10 text-primary">
-                    {getTimeUntil(hearing.scheduled_at)}
+                    {getHearingTimeUntil(hearing.scheduled_at)}
                   </div>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4 mt-4">
                   <div className="flex items-center text-sm">
                     <Calendar className="mr-2 h-4 w-4 text-gray-500" />
-                    <span>{formatHearingTime(hearing.scheduled_at)}</span>
+                    <span>{formatHearingDate(hearing.scheduled_at)}</span>
                   </div>
                   <div className="flex items-center text-sm">
                     <Clock className="mr-2 h-4 w-4 text-gray-500" />
@@ -224,7 +146,7 @@ export default function HearingManagement() {
                     <ArrowRight className="ml-1 h-4 w-4" />
                   </Button>
                   
-                  {canJoinHearing(hearing) ? (
+                  {canJoinHearing(hearing.status, hearing.scheduled_at, hearing.meeting_link) ? (
                     <Button 
                       size="sm" 
                       onClick={() => handleJoinHearing(hearing)}
