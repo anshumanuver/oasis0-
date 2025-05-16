@@ -59,6 +59,7 @@ export default function CaseForm() {
       
       // Send notification to the user about the case creation
       await sendNotification({
+        recipient_id: user.id,
         title: "New Case Created",
         content: `You've successfully created a new case: ${title}`,
         related_to_case: newCase.id

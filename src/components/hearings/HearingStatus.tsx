@@ -95,13 +95,11 @@ export default function HearingStatus({
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => handleStatusChange('completed')}
-            disabled={status === 'completed'}
           >
             Mark as Completed
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => handleStatusChange('cancelled')}
-            disabled={status === 'cancelled'}
           >
             Cancel Hearing
           </DropdownMenuItem>

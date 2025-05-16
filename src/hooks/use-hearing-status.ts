@@ -40,16 +40,16 @@ export function useHearingStatus() {
       };
       
       // Send notifications to all participants except the current user
-      participantIds.forEach(participantId => {
+      for (const participantId of participantIds) {
         if (participantId !== user.id) {
-          sendNotification({
+          await sendNotification({
             recipient_id: participantId,
             title: "Hearing Status Updated",
             content: `The hearing "${hearingTitle}" has been ${statusMessages[status]}`,
             related_to_case: caseId
           });
         }
-      });
+      }
       
       return updatedHearing;
     } catch (error) {

@@ -1,4 +1,5 @@
-import { format, isAfter, addMinutes, differenceInDays } from 'date-fns';
+
+import { format, isAfter, addMinutes, differenceInDays, isBefore } from 'date-fns';
 import { HearingStatus } from '@/integrations/supabase/hearings';
 
 export const getStatusBadgeVariant = (status: HearingStatus, scheduledAt: string) => {
@@ -8,8 +9,8 @@ export const getStatusBadgeVariant = (status: HearingStatus, scheduledAt: string
   
   // Determine if hearing is currently live
   const isLive = status === 'scheduled' && 
-    isAfter(now, hearingTime) || 
-    (now >= hearingTime && now <= hearingEndTime);
+    isAfter(now, hearingTime) && 
+    isBefore(now, hearingEndTime);
     
   if (isLive) {
     return 'live';

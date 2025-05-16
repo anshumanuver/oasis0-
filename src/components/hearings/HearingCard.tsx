@@ -1,94 +1,55 @@
 
+import { formatDistanceToNow } from 'date-fns';
+import { Calendar, Clock, Users, ArrowRight, Video } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { formatHearingDate, getHearingTimeUntil, canJoinHearing } from "@/utils/hearingHelpers";
-import { HearingStatus } from '@/integrations/supabase/hearings';
-import { Clock, Calendar, Video, Users } from 'lucide-react';
+import { formatHearingDate, getHearingTimeUntil, canJoinHearing } from '@/utils/hearingHelpers';
 import HearingStatusBadge from './HearingStatusBadge';
+import { HearingStatus } from '@/integrations/supabase/hearings';
 
 interface HearingCardProps {
   id: string;
   title: string;
-  scheduledAt: string;
-  duration: number;
-  status: HearingStatus;
   caseId: string;
   caseTitle: string;
+  scheduledAt: string;
+  duration: number;
   description?: string;
+  status: HearingStatus;
   meetingLink?: string;
   participantCount: number;
   onJoinHearing?: () => void;
-  showJoinButton?: boolean;
-  isCompact?: boolean;
+  compact?: boolean;
 }
 
 export default function HearingCard({
   id,
   title,
-  scheduledAt,
-  duration,
-  status,
   caseId,
   caseTitle,
+  scheduledAt,
+  duration,
   description,
+  status,
   meetingLink,
   participantCount,
   onJoinHearing,
-  showJoinButton = true,
-  isCompact = false
+  compact = false
 }: HearingCardProps) {
   const now = new Date();
-  const hearingDate = new Date(scheduledAt);
-  const isPast = now > hearingDate;
-  const canJoin = showJoinButton && canJoinHearing(status, scheduledAt, meetingLink);
-
-  if (isCompact) {
-    return (
-      <div className="border-b last:border-b-0 pb-4 mb-4 last:mb-0">
-        <div className="flex justify-between items-start">
-          <div>
-            <div className="flex items-center gap-2">
-              <h3 className="font-medium text-sm">{title}</h3>
-              <HearingStatusBadge status={status} scheduledAt={scheduledAt} />
-            </div>
-            <p className="text-xs text-gray-500 mt-1">
-              Case: <Link to={`/cases/${caseId}`} className="hover:underline text-blue-600">
-                {caseTitle}
-              </Link>
-            </p>
-          </div>
-          <div className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">
-            {getHearingTimeUntil(scheduledAt)}
-          </div>
-        </div>
-        
-        <div className="mt-2 flex items-center justify-between">
-          <div className="flex items-center text-xs text-gray-500">
-            <Calendar className="h-3.5 w-3.5 mr-1" />
-            <span>{formatHearingDate(scheduledAt)}</span>
-          </div>
-          
-          {canJoin && (
-            <Button size="sm" variant="outline" className="h-7 text-xs" onClick={onJoinHearing}>
-              <Video className="h-3 w-3 mr-1" />
-              Join
-            </Button>
-          )}
-        </div>
-      </div>
-    );
-  }
-
+  const hearingTime = new Date(scheduledAt);
+  const canJoin = canJoinHearing(status, scheduledAt, meetingLink);
+  const isPast = hearingTime < now && (status === 'completed' || status === 'cancelled');
+  
   return (
-    <Card className="mb-4">
-      <CardContent className="p-6">
+    <Card className={compact ? "mb-2" : "mb-4"}>
+      <CardContent className={compact ? "p-4" : "p-6"}>
         <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <h3 className="text-xl font-semibold">{title}</h3>
-              <HearingStatusBadge status={status} scheduledAt={scheduledAt} />
+              <h3 className={compact ? "text-base font-medium" : "text-xl font-semibold"}>{title}</h3>
+              <HearingStatusBadge status={status} scheduledAt={scheduledAt} className="ml-2" />
             </div>
             
             <p className="text-sm text-gray-500">
@@ -112,7 +73,7 @@ export default function HearingCard({
               </div>
             </div>
             
-            {description && (
+            {description && !compact && (
               <p className="text-sm mt-2">{description}</p>
             )}
           </div>
@@ -124,20 +85,19 @@ export default function HearingCard({
               </span>
             )}
             
-            <div className="mt-2 space-x-2">
-              {canJoin && (
-                <Button size="sm" onClick={onJoinHearing} className="gap-1">
-                  <Video className="h-4 w-4" />
-                  Join Hearing
-                </Button>
-              )}
-              
-              <Button variant="outline" size="sm" asChild>
-                <Link to={`/cases/${caseId}`}>
-                  View Case
-                </Link>
+            {canJoin && onJoinHearing && (
+              <Button size="sm" onClick={onJoinHearing} className="mt-2">
+                <Video className="h-4 w-4 mr-2" />
+                Join Meeting
               </Button>
-            </div>
+            )}
+            
+            <Button variant="outline" size="sm" asChild className="mt-1">
+              <Link to={`/cases/${caseId}`}>
+                <ArrowRight className="h-4 w-4 mr-2" />
+                View Case
+              </Link>
+            </Button>
           </div>
         </div>
       </CardContent>
