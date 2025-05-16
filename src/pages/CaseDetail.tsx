@@ -72,10 +72,10 @@ export default function CaseDetail() {
       caseData.parties.forEach(party => {
         if (party.id !== user.id) {
           sendNotification({
-            recipientId: party.id,
+            recipient_id: party.id,
             title: "Case Status Updated",
             content: `Case "${caseData.title}" has been marked as resolved`,
-            relatedToCaseId: caseData.id
+            related_to_case: caseData.id
           });
         }
       });

@@ -10,6 +10,7 @@ import { mockCases } from '@/data/mockData';
 import { Case } from '@/types';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { BarChart2, FileText, CheckCircle } from 'lucide-react';
 
 export default function Dashboard() {
   const [cases, setCases] = useState<Case[]>([]);
@@ -31,20 +32,23 @@ export default function Dashboard() {
           <StatsCard 
             title="Total Cases" 
             value={cases.length} 
+            icon={<BarChart2 className="h-6 w-6 text-blue-600" />}
             description="All cases"
-            trend="up"
+            trend={{ value: 12, isPositive: true }}
           />
           <StatsCard 
             title="Active Cases" 
             value={cases.filter(c => c.status !== 'resolved').length} 
+            icon={<FileText className="h-6 w-6 text-amber-600" />}
             description="Currently active"
-            trend="up"
+            trend={{ value: 8, isPositive: true }}
           />
           <StatsCard 
             title="Resolved Cases" 
             value={cases.filter(c => c.status === 'resolved').length} 
+            icon={<CheckCircle className="h-6 w-6 text-green-600" />}
             description="Successfully completed"
-            trend="up"
+            trend={{ value: 5, isPositive: true }}
           />
         </div>
         

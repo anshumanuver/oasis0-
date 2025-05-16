@@ -10,7 +10,7 @@ export function useNotification() {
     title,
     content,
     related_to_case
-  }: Omit<CreateNotificationParams, 'recipient_id'> & { recipient_id?: string }) => {
+  }: Omit<CreateNotificationParams, "recipient_id"> & { recipient_id?: string }) => {
     // Use provided recipient ID or fall back to current user
     const recipient = recipient_id || user?.id;
     

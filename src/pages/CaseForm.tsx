@@ -61,7 +61,7 @@ export default function CaseForm() {
       await sendNotification({
         title: "New Case Created",
         content: `You've successfully created a new case: ${title}`,
-        relatedToCaseId: newCase.id
+        related_to_case: newCase.id
       });
       
       navigate(`/cases/${newCase.id}`);

@@ -11,6 +11,7 @@ import HearingManagement from '@/components/hearings/HearingManagement';
 import { useAuth } from '@/context/AuthContext';
 import { mockCases } from '@/data/mockData';
 import { Case } from '@/types';
+import { BarChart2, FileText, CheckCircle } from 'lucide-react';
 
 export default function PartyDashboard() {
   const [cases, setCases] = useState<Case[]>([]);
@@ -37,20 +38,23 @@ export default function PartyDashboard() {
           <StatsCard
             title="Active Cases"
             value={cases.filter(c => c.status !== 'resolved').length}
+            icon={<BarChart2 className="h-6 w-6 text-blue-600" />}
             description="Currently open cases"
-            trend="up"
+            trend={{ value: 7, isPositive: true }}
           />
           <StatsCard
             title="Resolved Cases"
             value={cases.filter(c => c.status === 'resolved').length}
+            icon={<CheckCircle className="h-6 w-6 text-green-600" />}
             description="Successfully completed"
-            trend="none"
+            trend={{ value: 3, isPositive: false }}
           />
           <StatsCard
             title="Documents"
             value={cases.reduce((sum, c) => sum + (c.documents?.length || 0), 0)}
+            icon={<FileText className="h-6 w-6 text-amber-600" />}
             description="Across all cases"
-            trend="none"
+            trend={{ value: 10, isPositive: true }}
           />
         </div>
 
@@ -68,7 +72,7 @@ export default function PartyDashboard() {
             <CasesTable cases={cases} />
           </div>
           <div>
-            <PartyMessagingWidget />
+            <PartyMessagingWidget partyCases={cases} />
           </div>
         </div>
       </div>
