@@ -1,0 +1,256 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { format, isAfter, isBefore, addMinutes } from 'date-fns';
+import { useAuth } from '@/context/AuthContext';
+import { getUpcomingHearingsForUser, updateHearingStatus, HearingStatus } from '@/integrations/supabase/hearings';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { useToast } from '@/hooks/use-toast';
+import { Clock, Calendar, Video, ArrowRight } from 'lucide-react';
+
+interface HearingData {
+  id: string;
+  title: string;
+  case_id: string;
+  case_title: string;
+  scheduled_at: string;
+  duration_minutes: number;
+  status: HearingStatus;
+  meeting_link?: string;
+}
+
+export default function HearingManagement() {
+  const [hearings, setHearings] = useState<HearingData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchHearings = async () => {
+      if (!user) return;
+      
+      try {
+        setLoading(true);
+        const data = await getUpcomingHearingsForUser(user.id);
+        setHearings(data);
+      } catch (error) {
+        console.error('Error fetching hearings:', error);
+        toast({
+          title: 'Error',
+          description: 'Could not load upcoming hearings',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHearings();
+    
+    // Refresh data every minute to update status
+    const intervalId = setInterval(fetchHearings, 60000);
+    return () => clearInterval(intervalId);
+  }, [user, toast]);
+
+  const handleJoinHearing = async (hearing: HearingData) => {
+    // If the hearing is scheduled to start but status is still "scheduled", update to "in_progress"
+    const now = new Date();
+    const hearingTime = new Date(hearing.scheduled_at);
+    
+    if (hearing.status === 'scheduled' && isAfter(now, hearingTime)) {
+      try {
+        await updateHearingStatus(hearing.id, 'in_progress');
+        
+        // Update local state
+        setHearings(prev => 
+          prev.map(h => h.id === hearing.id ? {...h, status: 'in_progress' as HearingStatus} : h)
+        );
+        
+        toast({
+          title: 'Hearing Started',
+          description: `You have joined the hearing: ${hearing.title}`,
+        });
+      } catch (error) {
+        console.error('Error updating hearing status:', error);
+      }
+    }
+    
+    // Open the meeting link in a new tab
+    if (hearing.meeting_link) {
+      window.open(hearing.meeting_link, '_blank');
+    }
+  };
+
+  const getStatusBadge = (status: HearingStatus, scheduledAt: string) => {
+    const now = new Date();
+    const hearingTime = new Date(scheduledAt);
+    const hearingEndTime = addMinutes(hearingTime, 15); // Buffer time after scheduled start
+    
+    // Show "Live Now" for hearings that should be in progress
+    if (status === 'scheduled' && isAfter(now, hearingTime) && isBefore(now, hearingEndTime)) {
+      return <Badge className="bg-red-500">Live Now</Badge>;
+    }
+    
+    switch (status) {
+      case 'scheduled':
+        return <Badge variant="outline">Scheduled</Badge>;
+      case 'in_progress':
+        return <Badge className="bg-amber-500">In Progress</Badge>;
+      case 'completed':
+        return <Badge variant="secondary">Completed</Badge>;
+      case 'cancelled':
+        return <Badge variant="destructive">Cancelled</Badge>;
+      default:
+        return <Badge variant="outline">Scheduled</Badge>;
+    }
+  };
+
+  const formatHearingTime = (dateString: string) => {
+    const now = new Date();
+    const hearingTime = new Date(dateString);
+    
+    // If the hearing is today, just show the time
+    if (now.toDateString() === hearingTime.toDateString()) {
+      return `Today at ${format(hearingTime, 'h:mm a')}`;
+    }
+    
+    // If the hearing is tomorrow, show "Tomorrow"
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    if (tomorrow.toDateString() === hearingTime.toDateString()) {
+      return `Tomorrow at ${format(hearingTime, 'h:mm a')}`;
+    }
+    
+    // Otherwise show the full date
+    return format(hearingTime, 'EEE, MMM d, yyyy - h:mm a');
+  };
+
+  const getTimeUntil = (dateString: string) => {
+    const now = new Date();
+    const hearingTime = new Date(dateString);
+    
+    if (isAfter(now, hearingTime)) {
+      return 'Now';
+    }
+    
+    const diffMs = hearingTime.getTime() - now.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+    
+    if (diffDays > 0) {
+      return `${diffDays} day${diffDays > 1 ? 's' : ''} from now`;
+    } else if (diffHours > 0) {
+      return `${diffHours} hour${diffHours > 1 ? 's' : ''} from now`;
+    } else {
+      return `${diffMins} minute${diffMins > 1 ? 's' : ''} from now`;
+    }
+  };
+
+  const canJoinHearing = (hearing: HearingData) => {
+    const now = new Date();
+    const hearingTime = new Date(hearing.scheduled_at);
+    const joinWindow = addMinutes(hearingTime, -15); // Can join 15 minutes before
+    
+    return (
+      (hearing.status === 'scheduled' || hearing.status === 'in_progress') && 
+      isAfter(now, joinWindow) &&
+      hearing.meeting_link
+    );
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Hearing Management</CardTitle>
+        <CardDescription>
+          Manage and join your upcoming hearings
+        </CardDescription>
+      </CardHeader>
+      
+      <CardContent>
+        {loading ? (
+          <div className="flex justify-center py-6">
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+          </div>
+        ) : hearings.length === 0 ? (
+          <div className="text-center py-10 text-gray-500">
+            <Calendar className="mx-auto h-12 w-12 text-gray-400 mb-3" />
+            <h3 className="font-medium text-lg">No upcoming hearings</h3>
+            <p className="text-sm mt-1">You don't have any hearings scheduled yet</p>
+          </div>
+        ) : (
+          <div className="space-y-5">
+            {hearings.map((hearing) => (
+              <div key={hearing.id} className="border rounded-lg p-4">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold text-lg">{hearing.title}</h3>
+                      {getStatusBadge(hearing.status, hearing.scheduled_at)}
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Case: {hearing.case_title}
+                    </p>
+                  </div>
+                  <div className="text-xs font-medium px-3 py-1 rounded-full bg-primary/10 text-primary">
+                    {getTimeUntil(hearing.scheduled_at)}
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  <div className="flex items-center text-sm">
+                    <Calendar className="mr-2 h-4 w-4 text-gray-500" />
+                    <span>{formatHearingTime(hearing.scheduled_at)}</span>
+                  </div>
+                  <div className="flex items-center text-sm">
+                    <Clock className="mr-2 h-4 w-4 text-gray-500" />
+                    <span>{hearing.duration_minutes} minutes</span>
+                  </div>
+                </div>
+                
+                <Separator className="my-4" />
+                
+                <div className="flex justify-between items-center">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => navigate(`/cases/${hearing.case_id}`)}
+                  >
+                    View Case
+                    <ArrowRight className="ml-1 h-4 w-4" />
+                  </Button>
+                  
+                  {canJoinHearing(hearing) ? (
+                    <Button 
+                      size="sm" 
+                      onClick={() => handleJoinHearing(hearing)}
+                      className="gap-1"
+                    >
+                      <Video className="h-4 w-4" />
+                      Join Hearing
+                    </Button>
+                  ) : (
+                    <Button size="sm" variant="secondary" disabled>
+                      <Video className="mr-1 h-4 w-4" />
+                      {hearing.status === 'scheduled' ? 'Join (Not Available Yet)' : 'Not Available'}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ))}
+            
+            <div className="text-center pt-2">
+              <Button variant="link" onClick={() => navigate('/hearings')}>
+                View All Hearings
+              </Button>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}

@@ -1,18 +1,18 @@
 
 import { useAuth } from '@/context/AuthContext';
-import { createNotification, CreateNotificationDTO } from '@/integrations/supabase/notifications';
+import { createNotification, CreateNotificationParams } from '@/integrations/supabase/notifications';
 
 export function useNotification() {
   const { user } = useAuth();
   
   const sendNotification = async ({
-    recipientId,
+    recipient_id,
     title,
     content,
-    relatedToCaseId
-  }: Omit<CreateNotificationDTO, 'recipientId'> & { recipientId?: string }) => {
+    related_to_case
+  }: Omit<CreateNotificationParams, 'recipient_id'> & { recipient_id?: string }) => {
     // Use provided recipient ID or fall back to current user
-    const recipient = recipientId || user?.id;
+    const recipient = recipient_id || user?.id;
     
     if (!recipient) {
       console.error("Cannot send notification: No recipient ID provided and no user logged in");
@@ -21,10 +21,10 @@ export function useNotification() {
     
     try {
       const notification = await createNotification({
-        recipientId: recipient,
+        recipient_id: recipient,
         title,
         content,
-        relatedToCaseId
+        related_to_case
       });
       
       return notification;
