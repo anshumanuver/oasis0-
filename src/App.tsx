@@ -20,6 +20,8 @@ import Messages from "./pages/Messages";
 import NotFound from "./pages/NotFound";
 import HearingsList from "./pages/HearingsList";
 import HearingScheduler from "./pages/HearingScheduler";
+import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -89,6 +91,19 @@ const AppRoutes = () => {
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+
+      {/* Profile and Settings pages */}
+      <Route path="/profile" element={
+        <ProtectedRoute>
+          <Profile />
+        </ProtectedRoute>
+      } />
+
+      <Route path="/settings" element={
+        <ProtectedRoute>
+          <Settings />
+        </ProtectedRoute>
+      } />
       
       {/* Role-specific dashboard routes */}
       <Route path="/dashboard-redirect" element={

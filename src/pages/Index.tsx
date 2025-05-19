@@ -1,9 +1,11 @@
-
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import MainLayout from '@/components/layout/MainLayout';
+import { useAuth } from '@/context/AuthContext';
 
 export default function Index() {
+  const { user } = useAuth();
+
   return (
     <MainLayout>
       {/* Hero Section */}
@@ -18,12 +20,25 @@ export default function Index() {
                 orrr is an Online Dispute Resolution platform that provides negotiation, mediation, arbitration, and conciliation services to help you resolve disputes faster and more cost-effectively.
               </p>
               <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-                <Button size="lg" className="text-base px-8" asChild>
-                  <Link to="/register">Get Started</Link>
-                </Button>
-                <Button size="lg" variant="outline" className="text-base px-8" asChild>
-                  <Link to="/about">Learn More</Link>
-                </Button>
+                {user ? (
+                  <>
+                    <Button size="lg" className="text-base px-8" asChild>
+                      <Link to="/cases/new">File a New Case</Link>
+                    </Button>
+                    <Button size="lg" variant="outline" className="text-base px-8" asChild>
+                      <Link to="/dashboard">Go to Dashboard</Link>
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button size="lg" className="text-base px-8" asChild>
+                      <Link to="/register">Get Started</Link>
+                    </Button>
+                    <Button size="lg" variant="outline" className="text-base px-8" asChild>
+                      <Link to="/about">Learn More</Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
             <div className="md:w-1/2 mt-12 md:mt-0">
@@ -46,6 +61,23 @@ export default function Index() {
               Choose from a range of dispute resolution methods tailored to your specific needs
             </p>
           </div>
+          
+          {/* File a Case CTA for authenticated users */}
+          {user && (
+            <div className="mb-12 bg-orrr-blue-50 p-6 rounded-lg shadow-sm">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+                <div>
+                  <h3 className="text-xl font-semibold mb-2">Ready to resolve your dispute?</h3>
+                  <p className="text-gray-600 mb-4 md:mb-0">
+                    Start the process by filing a new case in our system.
+                  </p>
+                </div>
+                <Button size="lg" className="text-base px-8" asChild>
+                  <Link to="/cases/new">File a New Case</Link>
+                </Button>
+              </div>
+            </div>
+          )}
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* Negotiation */}
@@ -71,7 +103,7 @@ export default function Index() {
             <div className="bg-white rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow">
               <div className="rounded-full bg-orrr-teal-100 p-3 w-12 h-12 flex items-center justify-center mb-4">
                 <svg className="w-6 h-6 text-orrr-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20h-2m7-10V5a2 2 0 11-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
                 </svg>
               </div>
               <h3 className="text-xl font-semibold mb-2">Mediation</h3>
@@ -179,9 +211,15 @@ export default function Index() {
           </div>
           
           <div className="text-center mt-12">
-            <Button size="lg" className="text-base px-8" asChild>
-              <Link to="/register">Get Started Now</Link>
-            </Button>
+            {user ? (
+              <Button size="lg" className="text-base px-8" asChild>
+                <Link to="/cases/new">File a Case Now</Link>
+              </Button>
+            ) : (
+              <Button size="lg" className="text-base px-8" asChild>
+                <Link to="/register">Get Started Now</Link>
+              </Button>
+            )}
           </div>
         </div>
       </section>
