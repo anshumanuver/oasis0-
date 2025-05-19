@@ -15,6 +15,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, userData: any) => Promise<{ error: any, data: any }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
+  refreshProfile: () => Promise<void>; // Added refreshProfile function
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -78,6 +79,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error('Error fetching profile:', error);
     }
   }
+
+  const refreshProfile = async () => {
+    if (user) {
+      await fetchProfile(user.id);
+    }
+  };
 
   const signIn = async (email: string, password: string) => {
     try {
@@ -158,7 +165,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signInWithGoogle,
         signUp,
         signOut,
-        resetPassword
+        resetPassword,
+        refreshProfile
       }}
     >
       {children}
