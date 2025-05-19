@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { getUpcomingHearingsForUser, updateHearingStatus, HearingData as BaseHearingData, HearingStatus } from '@/integrations/supabase/hearings';
+import { getUpcomingHearingsForUser, updateHearingStatus, HearingData, HearingStatus } from '@/integrations/supabase/hearings';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -12,12 +12,13 @@ import { formatHearingDate, getHearingTimeUntil, canJoinHearing } from '@/utils/
 import HearingStatusBadge from './HearingStatusBadge';
 import { isAfter } from 'date-fns';
 
-interface HearingData extends BaseHearingData {
-  case_title: string;
+// Extended HearingData interface with case_title and participant_ids
+interface ExtendedHearingData extends HearingData {
+  participant_ids: string[];
 }
 
 export default function HearingManagement() {
-  const [hearings, setHearings] = useState<HearingData[]>([]);
+  const [hearings, setHearings] = useState<ExtendedHearingData[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -30,8 +31,15 @@ export default function HearingManagement() {
       try {
         setLoading(true);
         const data = await getUpcomingHearingsForUser(user.id);
-        // Data coming from getUpcomingHearingsForUser is already correctly typed now
-        setHearings(data);
+        
+        // Add empty participant_ids array for now
+        // In a real implementation, this would fetch the actual participant IDs
+        const extendedData = data.map(hearing => ({
+          ...hearing,
+          participant_ids: [] // We'll enhance this in the future
+        }));
+        
+        setHearings(extendedData);
       } catch (error) {
         console.error('Error fetching hearings:', error);
         toast({
@@ -51,7 +59,7 @@ export default function HearingManagement() {
     return () => clearInterval(intervalId);
   }, [user, toast]);
 
-  const handleJoinHearing = async (hearing: HearingData) => {
+  const handleJoinHearing = async (hearing: ExtendedHearingData) => {
     // If the hearing is scheduled to start but status is still "scheduled", update to "in_progress"
     const now = new Date();
     const hearingTime = new Date(hearing.scheduled_at);

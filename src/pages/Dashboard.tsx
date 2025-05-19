@@ -3,8 +3,7 @@ import MainLayout from '@/components/layout/MainLayout';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import StatsCard from '@/components/dashboard/StatsCard';
 import CasesTable from '@/components/dashboard/CasesTable';
-import UpcomingHearings from '@/components/dashboard/UpcomingHearings';
-import HearingManagement from '@/components/hearings/HearingManagement';
+import HearingOverview from '@/components/dashboard/HearingOverview';
 import { useEffect, useState } from 'react';
 import { mockCases } from '@/data/mockData';
 import { Case } from '@/types';
@@ -54,7 +53,7 @@ export default function Dashboard() {
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <div className="lg:col-span-2">
-            <HearingManagement />
+            <HearingOverview />
           </div>
           <div>
             <UpcomingHearings cases={cases} />

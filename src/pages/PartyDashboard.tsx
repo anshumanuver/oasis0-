@@ -6,8 +6,7 @@ import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import StatsCard from '@/components/dashboard/StatsCard';
 import PartyActions from '@/components/party/PartyActions';
 import PartyMessagingWidget from '@/components/party/PartyMessagingWidget';
-import UpcomingHearings from '@/components/dashboard/UpcomingHearings';
-import HearingManagement from '@/components/hearings/HearingManagement';
+import HearingOverview from '@/components/dashboard/HearingOverview';
 import { useAuth } from '@/context/AuthContext';
 import { mockCases } from '@/data/mockData';
 import { Case } from '@/types';
@@ -60,7 +59,7 @@ export default function PartyDashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <div className="lg:col-span-2">
-            <HearingManagement />
+            <HearingOverview />
           </div>
           <div>
             <PartyActions />
