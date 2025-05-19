@@ -90,7 +90,22 @@ export async function fetchUserCases(userId: string) {
   const allCases = [...(createdCases || []), ...additionalCases];
   const uniqueCases = Array.from(new Map(allCases.map(c => [c.id, c])).values());
   
-  return uniqueCases;
+  // Map the database column names to our frontend property names
+  return uniqueCases.map(c => ({
+    id: c.id,
+    title: c.title,
+    description: c.description,
+    disputeType: c.case_type as DisputeType,
+    status: c.status,
+    createdAt: c.created_at,
+    updatedAt: c.updated_at,
+    createdBy: c.created_by,
+    parties: [],
+    documents: [],
+    messages: [],
+    events: [],
+    nextHearingDate: undefined
+  }));
 }
 
 export async function fetchCaseDetails(caseId: string) {
@@ -105,5 +120,20 @@ export async function fetchCaseDetails(caseId: string) {
     throw error;
   }
 
-  return data;
+  // Map the database response to our frontend Case type
+  return {
+    id: data.id,
+    title: data.title,
+    description: data.description,
+    disputeType: data.case_type as DisputeType,
+    status: data.status,
+    createdAt: data.created_at,
+    updatedAt: data.updated_at,
+    createdBy: data.created_by,
+    parties: [],
+    documents: [],
+    messages: [],
+    events: [],
+    nextHearingDate: undefined
+  };
 }

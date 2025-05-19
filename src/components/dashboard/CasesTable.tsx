@@ -69,6 +69,11 @@ export default function CasesTable({ cases }: CasesTableProps) {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
+  const formatDisputeType = (disputeType: string) => {
+    if (!disputeType) return 'Unknown';
+    return disputeType.replace('_', ' ').charAt(0).toUpperCase() + disputeType.slice(1);
+  };
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -133,7 +138,7 @@ export default function CasesTable({ cases }: CasesTableProps) {
               <TableRow key={caseItem.id}>
                 <TableCell className="font-medium">{caseItem.title}</TableCell>
                 <TableCell className="capitalize">
-                  {caseItem.disputeType.replace('_', ' ')}
+                  {formatDisputeType(caseItem.disputeType)}
                 </TableCell>
                 <TableCell>{getStatusBadge(caseItem.status)}</TableCell>
                 <TableCell>{formatDate(caseItem.createdAt)}</TableCell>
