@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { getUpcomingHearingsForUser, updateHearingStatus } from '@/integrations/supabase/hearings';
+import { getUpcomingHearingsForUser, updateHearingStatus, HearingData as BaseHearingData, HearingStatus } from '@/integrations/supabase/hearings';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -10,18 +10,10 @@ import { useToast } from '@/hooks/use-toast';
 import { Clock, Calendar, Video, ArrowRight } from 'lucide-react';
 import { formatHearingDate, getHearingTimeUntil, canJoinHearing } from '@/utils/hearingHelpers';
 import HearingStatusBadge from './HearingStatusBadge';
-import { HearingStatus } from '@/integrations/supabase/hearings';
 import { isAfter } from 'date-fns';
 
-interface HearingData {
-  id: string;
-  title: string;
-  case_id: string;
+interface HearingData extends BaseHearingData {
   case_title: string;
-  scheduled_at: string;
-  duration_minutes: number;
-  status: HearingStatus;
-  meeting_link?: string;
 }
 
 export default function HearingManagement() {
@@ -38,6 +30,7 @@ export default function HearingManagement() {
       try {
         setLoading(true);
         const data = await getUpcomingHearingsForUser(user.id);
+        // Data coming from getUpcomingHearingsForUser is already correctly typed now
         setHearings(data);
       } catch (error) {
         console.error('Error fetching hearings:', error);

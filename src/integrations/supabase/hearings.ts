@@ -12,6 +12,8 @@ export interface HearingCreateDTO {
   scheduledBy: string;
 }
 
+export type HearingStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
+
 export async function createHearing(hearingData: HearingCreateDTO) {
   const { data, error } = await supabase
     .from('hearings')
@@ -52,7 +54,18 @@ export async function getHearingsByCaseId(caseId: string) {
   return data || [];
 }
 
-export async function getUpcomingHearingsForUser(userId: string) {
+export interface HearingData {
+  id: string;
+  title: string;
+  case_id: string;
+  case_title: string;
+  scheduled_at: string;
+  duration_minutes: number;
+  status: HearingStatus;
+  meeting_link?: string;
+}
+
+export async function getUpcomingHearingsForUser(userId: string): Promise<HearingData[]> {
   const { data, error } = await supabase
     .from('hearings')
     .select(`
@@ -72,22 +85,20 @@ export async function getUpcomingHearingsForUser(userId: string) {
     throw error;
   }
 
-  // Transform the data to match the expected format
-  const transformedData = data.map(hearing => ({
+  // Transform the data to match the expected format and ensure status is of type HearingStatus
+  const transformedData: HearingData[] = data.map(hearing => ({
     id: hearing.id,
     title: hearing.title,
     case_id: hearing.case_id,
     case_title: hearing.cases?.title || 'Unknown Case',
     scheduled_at: hearing.scheduled_at,
     duration_minutes: hearing.duration_minutes,
-    status: hearing.status,
+    status: hearing.status as HearingStatus, // Cast to ensure it matches the HearingStatus type
     meeting_link: hearing.meeting_link
   }));
 
   return transformedData || [];
 }
-
-export type HearingStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
 
 export async function updateHearingStatus(hearingId: string, status: HearingStatus) {
   const { data, error } = await supabase

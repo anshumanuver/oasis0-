@@ -2,18 +2,10 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { getUpcomingHearingsForUser, HearingStatus } from '@/integrations/supabase/hearings';
+import { getUpcomingHearingsForUser, HearingStatus, HearingData as BaseHearingData } from '@/integrations/supabase/hearings';
 
-export interface HearingData {
-  id: string;
-  title: string;
-  case_id: string;
-  case_title: string;
-  scheduled_at: string;
-  duration_minutes: number;
-  status: HearingStatus;
-  meeting_link?: string;
-  description?: string;
+// Extend the base HearingData interface to include participant_ids
+export interface HearingData extends BaseHearingData {
   participant_ids: string[];
 }
 
@@ -29,7 +21,14 @@ export function useHearings() {
       setLoading(true);
       try {
         const data = await getUpcomingHearingsForUser(user.id);
-        setHearings(data);
+        
+        // Add participant_ids field to each hearing (mocked for now)
+        const extendedData: HearingData[] = data.map(hearing => ({
+          ...hearing,
+          participant_ids: [] // Default empty array since we don't have this data yet
+        }));
+        
+        setHearings(extendedData);
       } catch (error) {
         console.error('Error fetching hearings:', error);
       } finally {
