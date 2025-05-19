@@ -2,14 +2,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { useToast } from '@/hooks/use-toast';
-import { useNotification } from '@/hooks/use-notification';
+import { toast } from '@/hooks/use-toast';
 import { createCase } from '@/integrations/supabase/cases';
 import MainLayout from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -22,16 +23,16 @@ import { DisputeType } from '@/types';
 export default function CaseForm() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { toast } = useToast();
-  const { sendNotification } = useNotification();
   
   const [isLoading, setIsLoading] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [disputeType, setDisputeType] = useState<DisputeType>('mediation');
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError(null);
     
     if (!user) {
       toast({
@@ -39,6 +40,7 @@ export default function CaseForm() {
         description: "Please sign in to create a case",
         variant: "destructive"
       });
+      navigate('/login');
       return;
     }
 
@@ -57,17 +59,10 @@ export default function CaseForm() {
         description: "Your case has been successfully submitted"
       });
       
-      // Send notification to the user about the case creation
-      await sendNotification({
-        recipient_id: user.id,
-        title: "New Case Created",
-        content: `You've successfully created a new case: ${title}`,
-        related_to_case: newCase.id
-      });
-      
       navigate(`/cases/${newCase.id}`);
     } catch (error) {
       console.error("Error creating case:", error);
+      setError("Failed to create case. Please try again.");
       toast({
         title: "Error",
         description: "Failed to create case. Please try again.",
@@ -85,6 +80,13 @@ export default function CaseForm() {
           <h1 className="text-2xl font-bold mb-2">File a New Case</h1>
           <p className="text-gray-600">Please provide details about your dispute</p>
         </div>
+        
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4 mr-2" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
         
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">

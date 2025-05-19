@@ -2,9 +2,9 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { useToast } from '@/hooks/use-toast';
-import { useNotification } from '@/hooks/use-notification';
-import { mockCases } from '@/data/mockData'; // This would be replaced with actual API calls
+import { toast } from '@/hooks/use-toast';
+import { fetchCaseDetails } from '@/integrations/supabase/cases';
+import { supabase } from '@/integrations/supabase/client';
 import { Case } from '@/types';
 import MainLayout from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
@@ -17,40 +17,114 @@ export default function CaseDetail() {
   const { caseId } = useParams<{ caseId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { toast } = useToast();
-  const { sendNotification } = useNotification();
-
+  
   const [caseData, setCaseData] = useState<Case | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!caseId) return;
+    if (!caseId || !user) return;
     
-    // In a real app, you would fetch the case data from your API/database
-    // For now, we'll simulate it with our mock data
-    const fetchCaseData = () => {
-      setLoading(true);
-      
-      const foundCase = mockCases.find(c => c.id === caseId);
-      
-      if (foundCase) {
-        setCaseData(foundCase);
-      } else {
+    const fetchCase = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchCaseDetails(caseId);
+        
+        if (data) {
+          // Convert the data to match our Case type
+          const formattedCase: Case = {
+            id: data.id,
+            title: data.title,
+            description: data.description,
+            disputeType: data.case_type,
+            status: data.status,
+            createdAt: data.created_at,
+            updatedAt: data.updated_at || data.created_at,
+            createdBy: data.created_by,
+            parties: [], // Would need a separate fetch to get parties
+            documents: [], // Would need a separate fetch to get documents
+            messages: [], // Would need a separate fetch to get messages
+            events: [], // Would need to construct events from case history
+          };
+          
+          setCaseData(formattedCase);
+          
+          // Fetch parties for this case
+          const { data: parties, error: partiesError } = await supabase
+            .from('case_parties')
+            .select('*')
+            .eq('case_id', caseId);
+            
+          if (partiesError) {
+            console.error('Error fetching parties:', partiesError);
+          }
+          
+          // Fetch documents for this case
+          const { data: documents, error: documentsError } = await supabase
+            .from('documents')
+            .select('*')
+            .eq('case_id', caseId);
+            
+          if (documentsError) {
+            console.error('Error fetching documents:', documentsError);
+          }
+        } else {
+          navigate('/cases');
+          toast({
+            title: "Case not found",
+            description: "The requested case could not be found",
+            variant: "destructive"
+          });
+        }
+      } catch (err) {
+        console.error('Error fetching case:', err);
+        setError('Failed to load case details. Please try again.');
         toast({
-          title: "Case not found",
-          description: "The requested case could not be found",
+          title: "Error",
+          description: "Failed to load case details",
           variant: "destructive"
         });
-        navigate('/dashboard');
+      } finally {
+        setLoading(false);
       }
-      
-      setLoading(false);
     };
     
-    fetchCaseData();
-  }, [caseId, navigate, toast]);
+    fetchCase();
+  }, [caseId, navigate, user]);
   
-  if (loading || !caseData) {
+  const handleResolveCase = async () => {
+    if (!caseId || !user) return;
+    
+    try {
+      const { error } = await supabase
+        .from('cases')
+        .update({ status: 'resolved', resolved_at: new Date().toISOString() })
+        .eq('id', caseId);
+        
+      if (error) throw error;
+      
+      toast({
+        title: "Case resolved",
+        description: "The case status has been updated successfully"
+      });
+      
+      // Update local state
+      setCaseData(prev => {
+        if (!prev) return null;
+        return { ...prev, status: 'resolved' };
+      });
+      
+    } catch (err) {
+      console.error('Error resolving case:', err);
+      toast({
+        title: "Error",
+        description: "Failed to update case status",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  if (loading) {
     return (
       <MainLayout>
         <div className="flex justify-center items-center min-h-[400px]">
@@ -59,32 +133,26 @@ export default function CaseDetail() {
       </MainLayout>
     );
   }
-
-  const handleResolveCase = () => {
-    // In a real app, you would make an API call to update the case status
-    toast({
-      title: "Case marked as resolved",
-      description: "The case status has been updated successfully"
-    });
-    
-    // Send notification to all parties
-    if (user?.id && caseData) {
-      caseData.parties.forEach(party => {
-        if (party.id !== user.id) {
-          sendNotification({
-            recipient_id: party.id,
-            title: "Case Status Updated",
-            content: `Case "${caseData.title}" has been marked as resolved`,
-            related_to_case: caseData.id
-          });
-        }
-      });
-    }
-  };
   
-  const isParty = caseData.parties.some(party => party.id === user?.id);
-  const isNeutral = caseData.neutralId === user?.id;
+  if (error || !caseData) {
+    return (
+      <MainLayout>
+        <div className="container py-8">
+          <div className="bg-red-50 border border-red-200 rounded-md p-4">
+            <h2 className="text-lg font-medium text-red-800 mb-2">Error Loading Case</h2>
+            <p className="text-red-700">{error || "Case not found"}</p>
+            <Button onClick={() => navigate('/cases')} className="mt-4">
+              Back to Cases
+            </Button>
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
 
+  // Check if the current user is a party or creator of this case
+  const isCreator = caseData.createdBy === user?.id;
+  
   return (
     <MainLayout>
       <div className="container py-8">
@@ -108,26 +176,60 @@ export default function CaseDetail() {
           </div>
           
           <div className="flex gap-3">
-            {(isParty || isNeutral) && caseData.status !== 'resolved' && (
+            {isCreator && caseData.status !== 'resolved' && (
               <Button onClick={handleResolveCase}>
                 Mark as Resolved
               </Button>
             )}
-            <Button variant="outline" onClick={() => navigate(-1)}>
-              Back
+            <Button variant="outline" onClick={() => navigate('/cases')}>
+              Back to Cases
             </Button>
           </div>
         </div>
         
-        <Tabs defaultValue="timeline" className="mt-6">
+        <Tabs defaultValue="details" className="mt-6">
           <TabsList>
-            <TabsTrigger value="timeline">Timeline</TabsTrigger>
+            <TabsTrigger value="details">Details</TabsTrigger>
             <TabsTrigger value="documents">Documents</TabsTrigger>
             <TabsTrigger value="messages">Messages</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="timeline" className="mt-6">
-            <CaseTimeline events={caseData.events || []} />
+          <TabsContent value="details" className="mt-6">
+            <div className="bg-white rounded-md shadow p-6">
+              <h2 className="font-semibold text-lg mb-2">Case Description</h2>
+              <p className="text-gray-700 mb-6">{caseData.description}</p>
+              
+              <h2 className="font-semibold text-lg mb-2">Case Details</h2>
+              <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <dt className="text-sm font-medium text-gray-500">Type</dt>
+                  <dd className="mt-1 text-sm text-gray-900 capitalize">{caseData.disputeType}</dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-gray-500">Filed On</dt>
+                  <dd className="mt-1 text-sm text-gray-900">
+                    {new Date(caseData.createdAt).toLocaleDateString()}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-gray-500">Status</dt>
+                  <dd className="mt-1 text-sm text-gray-900 capitalize">{caseData.status.replace('_', ' ')}</dd>
+                </div>
+                {caseData.status === 'resolved' && caseData.resolvedAt && (
+                  <div>
+                    <dt className="text-sm font-medium text-gray-500">Resolved On</dt>
+                    <dd className="mt-1 text-sm text-gray-900">
+                      {new Date(caseData.resolvedAt).toLocaleDateString()}
+                    </dd>
+                  </div>
+                )}
+              </dl>
+            </div>
+            
+            <div className="mt-6">
+              <h2 className="font-semibold text-lg mb-4">Case Timeline</h2>
+              <CaseTimeline events={caseData.events || []} />
+            </div>
           </TabsContent>
           
           <TabsContent value="documents" className="mt-6">
@@ -135,7 +237,7 @@ export default function CaseDetail() {
           </TabsContent>
           
           <TabsContent value="messages" className="mt-6">
-            <CaseMessages messages={caseData.messages} />
+            <CaseMessages messages={caseData.messages || []} />
           </TabsContent>
         </Tabs>
       </div>

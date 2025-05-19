@@ -14,6 +14,7 @@ import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import MediatorDashboard from "./pages/MediatorDashboard";
 import PartyDashboard from "./pages/PartyDashboard";
+import Cases from "./pages/Cases";
 import CaseForm from "./pages/CaseForm";
 import CaseDetail from "./pages/CaseDetail";
 import Messages from "./pages/Messages";
@@ -130,6 +131,13 @@ const AppRoutes = () => {
         </RoleRoute>
       } />
       
+      {/* Case routes */}
+      <Route path="/cases" element={
+        <ProtectedRoute>
+          <Cases />
+        </ProtectedRoute>
+      } />
+      
       <Route path="/cases/new" element={
         <ProtectedRoute>
           <CaseForm />
@@ -172,7 +180,7 @@ const AppRoutes = () => {
   );
 };
 
-// Wrap the App component as a function component to ensure hooks work properly
+// Main App component
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>

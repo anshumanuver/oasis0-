@@ -27,5 +27,83 @@ export async function createCase(caseData: CaseCreateDTO) {
     throw error;
   }
 
+  // Add the new case to the case_parties table to establish the relationship
+  // between the case creator and the case
+  if (data) {
+    const { error: partyError } = await supabase
+      .from('case_parties')
+      .insert({
+        case_id: data.id,
+        profile_id: caseData.createdBy,
+        party_type: 'claimant'
+      });
+      
+    if (partyError) {
+      console.error('Error creating case party relationship:', partyError);
+    }
+  }
+
+  return data;
+}
+
+// Function to fetch cases for the current user
+export async function fetchUserCases(userId: string) {
+  // First get all cases where the user is directly a creator
+  const { data: createdCases, error: createdError } = await supabase
+    .from('cases')
+    .select('*')
+    .eq('created_by', userId);
+
+  if (createdError) {
+    console.error('Error fetching created cases:', createdError);
+    throw createdError;
+  }
+
+  // Then get cases where the user is a party
+  const { data: partyCases, error: partyError } = await supabase
+    .from('case_parties')
+    .select('case_id')
+    .eq('profile_id', userId);
+
+  if (partyError) {
+    console.error('Error fetching party cases:', partyError);
+    throw partyError;
+  }
+
+  // If there are party cases, fetch the full case details
+  let additionalCases = [];
+  if (partyCases && partyCases.length > 0) {
+    const caseIds = partyCases.map(p => p.case_id);
+    const { data: cases, error } = await supabase
+      .from('cases')
+      .select('*')
+      .in('id', caseIds);
+
+    if (error) {
+      console.error('Error fetching additional cases:', error);
+    } else if (cases) {
+      additionalCases = cases;
+    }
+  }
+
+  // Combine and deduplicate cases
+  const allCases = [...(createdCases || []), ...additionalCases];
+  const uniqueCases = Array.from(new Map(allCases.map(c => [c.id, c])).values());
+  
+  return uniqueCases;
+}
+
+export async function fetchCaseDetails(caseId: string) {
+  const { data, error } = await supabase
+    .from('cases')
+    .select('*')
+    .eq('id', caseId)
+    .single();
+
+  if (error) {
+    console.error('Error fetching case details:', error);
+    throw error;
+  }
+
   return data;
 }
