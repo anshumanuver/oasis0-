@@ -54,16 +54,37 @@ export async function getHearingsByCaseId(caseId: string) {
 
 export async function getUpcomingHearingsForUser(userId: string) {
   const { data, error } = await supabase
-    .rpc('get_upcoming_hearings_for_user', {
-      user_id: userId
-    });
+    .from('hearings')
+    .select(`
+      id, 
+      title,
+      case_id,
+      cases(title),
+      scheduled_at,
+      duration_minutes,
+      status,
+      meeting_link
+    `)
+    .order('scheduled_at', { ascending: true });
 
   if (error) {
     console.error('Error fetching upcoming hearings:', error);
     throw error;
   }
 
-  return data || [];
+  // Transform the data to match the expected format
+  const transformedData = data.map(hearing => ({
+    id: hearing.id,
+    title: hearing.title,
+    case_id: hearing.case_id,
+    case_title: hearing.cases?.title || 'Unknown Case',
+    scheduled_at: hearing.scheduled_at,
+    duration_minutes: hearing.duration_minutes,
+    status: hearing.status,
+    meeting_link: hearing.meeting_link
+  }));
+
+  return transformedData || [];
 }
 
 export type HearingStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
