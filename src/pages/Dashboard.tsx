@@ -4,6 +4,7 @@ import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import StatsCard from '@/components/dashboard/StatsCard';
 import CasesTable from '@/components/dashboard/CasesTable';
 import HearingOverview from '@/components/dashboard/HearingOverview';
+import UpcomingHearingsWidget from '@/components/dashboard/UpcomingHearingsWidget';
 import { useEffect, useState } from 'react';
 import { mockCases } from '@/data/mockData';
 import { Case } from '@/types';
@@ -56,7 +57,7 @@ export default function Dashboard() {
             <HearingOverview />
           </div>
           <div>
-            <UpcomingHearings cases={cases} />
+            <UpcomingHearingsWidget />
           </div>
         </div>
         
