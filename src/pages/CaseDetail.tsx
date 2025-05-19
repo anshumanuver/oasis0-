@@ -5,7 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { fetchCaseDetails } from '@/integrations/supabase/cases';
 import { supabase } from '@/integrations/supabase/client';
-import { Case } from '@/types';
+import { Case, CaseStatus } from '@/types';
 import MainLayout from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
