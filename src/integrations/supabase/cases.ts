@@ -1,6 +1,6 @@
 
 import { supabase } from './client';
-import type { DisputeType } from '@/types';
+import type { DisputeType, CaseStatus } from '@/types';
 
 export interface CaseCreateDTO {
   title: string;
@@ -96,10 +96,11 @@ export async function fetchUserCases(userId: string) {
     title: c.title,
     description: c.description,
     disputeType: c.case_type as DisputeType,
-    status: c.status,
+    status: c.status as CaseStatus,
     createdAt: c.created_at,
     updatedAt: c.updated_at,
     createdBy: c.created_by,
+    resolvedAt: c.resolved_at,
     parties: [],
     documents: [],
     messages: [],
@@ -126,10 +127,11 @@ export async function fetchCaseDetails(caseId: string) {
     title: data.title,
     description: data.description,
     disputeType: data.case_type as DisputeType,
-    status: data.status,
+    status: data.status as CaseStatus,
     createdAt: data.created_at,
     updatedAt: data.updated_at,
     createdBy: data.created_by,
+    resolvedAt: data.resolved_at,
     parties: [],
     documents: [],
     messages: [],

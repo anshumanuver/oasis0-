@@ -40,6 +40,7 @@ export interface Case {
   createdAt: string;
   updatedAt: string;
   createdBy: string;
+  resolvedAt?: string;
   parties: Party[];
   documents: Document[];
   messages: Message[];

@@ -31,23 +31,8 @@ export default function CaseDetail() {
         const data = await fetchCaseDetails(caseId);
         
         if (data) {
-          // Convert the data to match our Case type
-          const formattedCase: Case = {
-            id: data.id,
-            title: data.title,
-            description: data.description,
-            disputeType: data.case_type,
-            status: data.status,
-            createdAt: data.created_at,
-            updatedAt: data.updated_at || data.created_at,
-            createdBy: data.created_by,
-            parties: [], // Would need a separate fetch to get parties
-            documents: [], // Would need a separate fetch to get documents
-            messages: [], // Would need a separate fetch to get messages
-            events: [], // Would need to construct events from case history
-          };
-          
-          setCaseData(formattedCase);
+          // The fetchCaseDetails function now returns data already mapped to the Case type
+          setCaseData(data);
           
           // Fetch parties for this case
           const { data: parties, error: partiesError } = await supabase
@@ -96,9 +81,14 @@ export default function CaseDetail() {
     if (!caseId || !user) return;
     
     try {
+      const resolvedAt = new Date().toISOString();
+      
       const { error } = await supabase
         .from('cases')
-        .update({ status: 'resolved', resolved_at: new Date().toISOString() })
+        .update({ 
+          status: 'resolved', 
+          resolved_at: resolvedAt 
+        })
         .eq('id', caseId);
         
       if (error) throw error;
@@ -111,7 +101,11 @@ export default function CaseDetail() {
       // Update local state
       setCaseData(prev => {
         if (!prev) return null;
-        return { ...prev, status: 'resolved' };
+        return { 
+          ...prev, 
+          status: 'resolved' as CaseStatus,
+          resolvedAt
+        };
       });
       
     } catch (err) {
