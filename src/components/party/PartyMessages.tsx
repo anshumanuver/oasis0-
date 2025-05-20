@@ -1,6 +1,6 @@
-
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Case } from '@/types';
+import { Button } from '@/components/ui/button';
 
 interface PartyMessagesProps {
   partyCases: Case[];
@@ -64,5 +64,3 @@ export default function PartyMessages({ partyCases }: PartyMessagesProps) {
     </div>
   );
 }
-
-import { Button } from '@/components/ui/button';

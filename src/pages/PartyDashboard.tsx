@@ -1,79 +1,29 @@
 
-import { useEffect, useState } from 'react';
 import MainLayout from '@/components/layout/MainLayout';
-import CasesTable from '@/components/dashboard/CasesTable';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
-import StatsCard from '@/components/dashboard/StatsCard';
-import PartyActions from '@/components/party/PartyActions';
-import PartyMessagingWidget from '@/components/party/PartyMessagingWidget';
-import HearingOverview from '@/components/dashboard/HearingOverview';
-import { useAuth } from '@/context/AuthContext';
-import { mockCases } from '@/data/mockData';
-import { Case } from '@/types';
-import { BarChart2, FileText, CheckCircle } from 'lucide-react';
+import PartyDashboardContent from '@/components/party/PartyDashboardContent';
+import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
+import { Plus } from 'lucide-react';
 
 export default function PartyDashboard() {
-  const [cases, setCases] = useState<Case[]>([]);
-  const { user } = useAuth();
-
-  useEffect(() => {
-    // In production, fetch actual cases from API
-    // For now, we use mock data
-    const filteredCases = mockCases.filter(
-      c => c.parties.some(p => p.id === user?.id)
-    );
-    setCases(filteredCases);
-  }, [user]);
-
   return (
     <MainLayout requireAuth>
       <div className="container py-8">
-        <DashboardHeader
-          title="Party Dashboard"
-          description="Manage your cases and dispute resolution process"
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <StatsCard
-            title="Active Cases"
-            value={cases.filter(c => c.status !== 'resolved').length}
-            icon={<BarChart2 className="h-6 w-6 text-blue-600" />}
-            description="Currently open cases"
-            trend={{ value: 7, isPositive: true }}
+        <div className="flex justify-between items-center mb-6">
+          <DashboardHeader 
+            title="Client Dashboard" 
+            description="Manage your dispute resolution cases"
           />
-          <StatsCard
-            title="Resolved Cases"
-            value={cases.filter(c => c.status === 'resolved').length}
-            icon={<CheckCircle className="h-6 w-6 text-green-600" />}
-            description="Successfully completed"
-            trend={{ value: 3, isPositive: false }}
-          />
-          <StatsCard
-            title="Documents"
-            value={cases.reduce((sum, c) => sum + (c.documents?.length || 0), 0)}
-            icon={<FileText className="h-6 w-6 text-amber-600" />}
-            description="Across all cases"
-            trend={{ value: 10, isPositive: true }}
-          />
+          <Button asChild>
+            <Link to="/cases/new">
+              <Plus className="h-4 w-4 mr-2" />
+              File New Case
+            </Link>
+          </Button>
         </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          <div className="lg:col-span-2">
-            <HearingOverview />
-          </div>
-          <div>
-            <PartyActions />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          <div className="lg:col-span-2">
-            <CasesTable cases={cases} />
-          </div>
-          <div>
-            <PartyMessagingWidget partyCases={cases} />
-          </div>
-        </div>
+        
+        <PartyDashboardContent />
       </div>
     </MainLayout>
   );
