@@ -23,6 +23,7 @@ import HearingsList from "./pages/HearingsList";
 import HearingScheduler from "./pages/HearingScheduler";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
+import About from "./pages/About";
 
 const queryClient = new QueryClient();
 
@@ -92,6 +93,7 @@ const AppRoutes = () => {
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/about" element={<About />} />
 
       {/* Profile and Settings pages */}
       <Route path="/profile" element={

@@ -1,13 +1,14 @@
-
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import MainLayout from '@/components/layout/MainLayout';
 import { useAuth } from '@/context/AuthContext';
+import { FileText, Users, Balance, MessageCircle } from 'lucide-react';
 
 export default function Index() {
   const { user, profile } = useAuth();
   
   const isClient = profile?.role === 'client';
+  const isNeutral = profile?.role === 'neutral';
   
   return (
     <MainLayout withFooter={true} showNotifications={false}>
@@ -34,6 +35,11 @@ export default function Index() {
                         <Link to="/cases/new">File a Case</Link>
                       </Button>
                     )}
+                    {isNeutral && (
+                      <Button asChild variant="outline" size="lg">
+                        <Link to="/hearings">Manage Hearings</Link>
+                      </Button>
+                    )}
                   </>
                 ) : (
                   <>
@@ -47,6 +53,79 @@ export default function Index() {
                     </Button>
                   </>
                 )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Service highlights */}
+      <div className="bg-gray-50 py-24">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+              Our Dispute Resolution Services
+            </h2>
+            <p className="mt-6 text-lg leading-8 text-gray-600">
+              We offer multiple pathways to resolution, tailored to your specific needs
+            </p>
+          </div>
+          
+          <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-6 sm:mt-20 lg:mx-0 lg:max-w-none lg:grid-cols-3">
+            <div className="flex flex-col rounded-lg bg-white shadow-lg">
+              <div className="p-6">
+                <div className="flex h-12 w-12 items-center justify-center rounded-md bg-indigo-600 text-white mb-6">
+                  <Users className="h-6 w-6" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900">Mediation</h3>
+                <p className="mt-4 text-base text-gray-500">
+                  Work with a neutral third party who facilitates communication and helps both sides reach a mutually agreeable resolution.
+                </p>
+              </div>
+              <div className="flex flex-1 flex-col justify-end p-6 pt-0">
+                <Button asChild variant="outline" className="w-full">
+                  <Link to={user ? "/cases/new" : "/register"}>
+                    {user ? "Request Mediation" : "Learn More"}
+                  </Link>
+                </Button>
+              </div>
+            </div>
+            
+            <div className="flex flex-col rounded-lg bg-white shadow-lg">
+              <div className="p-6">
+                <div className="flex h-12 w-12 items-center justify-center rounded-md bg-indigo-600 text-white mb-6">
+                  <Balance className="h-6 w-6" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900">Arbitration</h3>
+                <p className="mt-4 text-base text-gray-500">
+                  Present your case to an impartial arbitrator who makes a binding or non-binding decision after hearing both sides.
+                </p>
+              </div>
+              <div className="flex flex-1 flex-col justify-end p-6 pt-0">
+                <Button asChild variant="outline" className="w-full">
+                  <Link to={user ? "/cases/new" : "/register"}>
+                    {user ? "Request Arbitration" : "Learn More"}
+                  </Link>
+                </Button>
+              </div>
+            </div>
+            
+            <div className="flex flex-col rounded-lg bg-white shadow-lg">
+              <div className="p-6">
+                <div className="flex h-12 w-12 items-center justify-center rounded-md bg-indigo-600 text-white mb-6">
+                  <MessageCircle className="h-6 w-6" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900">Negotiation</h3>
+                <p className="mt-4 text-base text-gray-500">
+                  Engage in structured negotiations on our platform with optional neutral guidance to reach settlement efficiently.
+                </p>
+              </div>
+              <div className="flex flex-1 flex-col justify-end p-6 pt-0">
+                <Button asChild variant="outline" className="w-full">
+                  <Link to={user ? "/cases/new" : "/register"}>
+                    {user ? "Start Negotiation" : "Learn More"}
+                  </Link>
+                </Button>
               </div>
             </div>
           </div>
@@ -144,6 +223,53 @@ export default function Index() {
                 File a New Case
               </Link>
             </Button>
+          </div>
+        </div>
+      )}
+      
+      {/* CTA section for logged-in neutrals */}
+      {user && isNeutral && (
+        <div className="bg-orrr-blue-700">
+          <div className="mx-auto max-w-2xl py-16 px-6 text-center sm:py-20 lg:px-8">
+            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+              Manage your mediation cases
+            </h2>
+            <p className="mt-4 text-lg leading-6 text-blue-100">
+              Access your active cases and upcoming hearings from your mediator dashboard.
+            </p>
+            <Button asChild className="mt-8 bg-white text-orrr-blue-700 hover:bg-blue-50" size="lg">
+              <Link to="/mediator-dashboard">
+                Go to Mediator Dashboard
+              </Link>
+            </Button>
+          </div>
+        </div>
+      )}
+      
+      {/* CTA for non-logged in users */}
+      {!user && (
+        <div className="bg-gray-100">
+          <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
+            <div className="mx-auto max-w-2xl text-center">
+              <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+                Ready to get started?
+              </h2>
+              <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-gray-600">
+                Create an account to begin resolving your disputes online or learn more about our services.
+              </p>
+              <div className="mt-10 flex items-center justify-center gap-x-6">
+                <Button asChild>
+                  <Link to="/register">
+                    Create account
+                  </Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link to="/about">
+                    Learn more
+                  </Link>
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       )}

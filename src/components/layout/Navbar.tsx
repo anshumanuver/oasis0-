@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -36,6 +35,10 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex md:items-center md:space-x-4">
+            <Link to="/about" className="nav-link">
+              About
+            </Link>
+            
             {user ? (
               <>
                 <Link to={getDashboardLink()} className="nav-link">
@@ -100,6 +103,14 @@ export default function Navbar() {
       {mobileMenuOpen && (
         <div className="md:hidden bg-white shadow-lg pb-4">
           <div className="pt-2 pb-3 space-y-1 px-4">
+            <Link
+              to="/about"
+              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              About
+            </Link>
+            
             {user ? (
               <>
                 <Link
