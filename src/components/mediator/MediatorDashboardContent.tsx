@@ -92,18 +92,10 @@ export default function MediatorDashboardContent() {
             </Button>
           </CardHeader>
           <CardContent>
-            {cases.filter(c => c.status !== 'resolved')
-              .slice(0, 3)
-              .map(caseItem => (
-                <CaseAssignmentCard 
-                  key={caseItem.id}
-                  caseId={caseItem.id}
-                  title={caseItem.title}
-                  type={caseItem.disputeType}
-                  date={caseItem.createdAt}
-                  status={caseItem.status}
-                />
-              ))}
+            {/* Create an array of case assignments to pass to CaseAssignmentCard */}
+            <CaseAssignmentCard 
+              assignments={cases.filter(c => c.status !== 'resolved').slice(0, 3)}
+            />
           </CardContent>
         </Card>
       </div>
