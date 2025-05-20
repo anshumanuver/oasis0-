@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -5,6 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { Menu, X } from 'lucide-react';
 import NotificationCenter from '@/components/notifications/NotificationCenter';
 import ProfileMenu from './ProfileMenu';
+import AppNavigationMenu from './NavigationMenu';
 
 export default function Navbar() {
   const { user, profile } = useAuth();
@@ -31,57 +33,40 @@ export default function Navbar() {
                 ODR Platform
               </span>
             </Link>
+            
+            {/* Desktop Navigation Menu */}
+            <div className="hidden md:ml-6 md:flex md:items-center">
+              {user && <AppNavigationMenu />}
+            </div>
           </div>
 
-          {/* Desktop Navigation */}
+          {/* Desktop quick links */}
           <div className="hidden md:flex md:items-center md:space-x-4">
-            <Link to="/about" className="nav-link">
-              About
-            </Link>
-            
-            {user ? (
+            {!user && (
               <>
-                <Link to={getDashboardLink()} className="nav-link">
-                  Dashboard
+                <Link to="/about" className="nav-link">
+                  About
                 </Link>
-                <Link to="/cases" className="nav-link">
-                  Cases
-                </Link>
-                {profile?.role === 'neutral' && (
-                  <Link to="/hearings" className="nav-link">
-                    Hearings
-                  </Link>
-                )}
-                {profile?.role === 'client' && (
-                  <>
-                    <Link to="/messages" className="nav-link">
-                      Messages
-                    </Link>
-                    <Link to="/cases/new" className="nav-link">
-                      File Case
-                    </Link>
-                  </>
-                )}
-                {profile?.role === 'admin' && (
-                  <Link to="/admin" className="nav-link">
-                    Admin Panel
-                  </Link>
-                )}
-                
-                {/* Add NotificationCenter here */}
-                <NotificationCenter />
-                
-                {/* Profile Menu */}
-                <ProfileMenu />
-              </>
-            ) : (
-              <>
                 <Link to="/login">
                   <Button variant="ghost">Log in</Button>
                 </Link>
                 <Link to="/register">
                   <Button>Sign up</Button>
                 </Link>
+              </>
+            )}
+            
+            {user && (
+              <>
+                <Link to="/cases/new" className="nav-link">
+                  File Case
+                </Link>
+                
+                {/* Add NotificationCenter here */}
+                <NotificationCenter />
+                
+                {/* Profile Menu */}
+                <ProfileMenu />
               </>
             )}
           </div>
@@ -175,7 +160,6 @@ export default function Navbar() {
                   }}
                 >
                   Notifications
-                  <NotificationCenter />
                 </Link>
                 
                 <Link

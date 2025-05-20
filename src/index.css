@@ -2,91 +2,97 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 47.4% 11.2%;
  
-@layer base {
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+ 
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 47.4% 11.2%;
+ 
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 47.4% 11.2%;
+ 
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+ 
+  --primary: 222.2 47.4% 11.2%;
+  --primary-foreground: 210 40% 98%;
+ 
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+ 
+  --accent: 210 40% 96.1%;
+  --accent-foreground: 222.2 47.4% 11.2%;
+ 
+  --destructive: 0 100% 50%;
+  --destructive-foreground: 210 40% 98%;
+ 
+  --ring: 215 20.2% 65.1%;
+ 
+  --radius: 0.5rem;
+  
+  /* Custom ORRR colors */
+  --orrr-blue-50: 218 100% 97%;
+  --orrr-blue-100: 221 94% 93%;
+  --orrr-blue-200: 220 95% 86%;
+  --orrr-blue-300: 217 91% 76%;
+  --orrr-blue-400: 218 87% 67%;
+  --orrr-blue-500: 220 83% 58%;
+  --orrr-blue-600: 222 73% 50%;
+  --orrr-blue-700: 224 64% 42%;
+  --orrr-blue-800: 226 56% 34%;
+  --orrr-blue-900: 224 54% 27%;
+  --orrr-blue-950: 226 57% 18%;
+  
+  --orrr-teal-50: 166 73% 94%;
+  --orrr-teal-100: 167 85% 89%;
+  --orrr-teal-200: 168 84% 78%;
+  --orrr-teal-300: 171 77% 64%;
+  --orrr-teal-400: 172 66% 50%;
+  --orrr-teal-500: 173 80% 40%;
+  --orrr-teal-600: 174 84% 32%;
+  --orrr-teal-700: 175 77% 26%;
+  --orrr-teal-800: 176 69% 22%;
+  --orrr-teal-900: 176 61% 19%;
+  --orrr-teal-950: 179 84% 10%;
+}
+ 
+@media (prefers-color-scheme: dark) {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
  
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --muted: 223 47% 11%;
+    --muted-foreground: 215.4 16.3% 56.9%;
  
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --popover: 224 71% 4%;
+    --popover-foreground: 215 20.2% 65.1%;
  
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --card: 224 71% 4%;
+    --card-foreground: 213 31% 91%;
  
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
- 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
- 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
- 
-    --radius: 0.5rem;
-
-    /* ODR Platform specific colors */
-    --orrr-blue-50: 214 100% 97%;
-    --orrr-blue-100: 214 100% 92%;
-    --orrr-blue-200: 214 95% 85%;
-    --orrr-blue-300: 214 90% 70%;
-    --orrr-blue-400: 214 84% 60%;
-    --orrr-blue-500: 214 84% 50%;
-    --orrr-blue-600: 214 90% 42%;
-    --orrr-blue-700: 214 96% 36%;
-    --orrr-blue-800: 214 92% 30%;
-    --orrr-blue-900: 214 80% 25%;
-    
-    --orrr-teal-50: 186 100% 95%;
-    --orrr-teal-100: 186 94% 87%;
-    --orrr-teal-200: 186 90% 77%;
-    --orrr-teal-300: 186 76% 65%;
-    --orrr-teal-400: 186 69% 55%;
-    --orrr-teal-500: 186 75% 45%;
-    --orrr-teal-600: 186 80% 35%;
-    --orrr-teal-700: 186 75% 30%;
-    --orrr-teal-800: 186 70% 25%;
-    --orrr-teal-900: 186 70% 20%;
-  }
- 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
- 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
- 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --border: 216 34% 17%;
+    --input: 216 34% 17%;
  
     --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary-foreground: 222.2 47.4% 1.2%;
  
-    --secondary: 217.2 32.6% 17.5%;
+    --secondary: 222.2 47.4% 11.2%;
     --secondary-foreground: 210 40% 98%;
  
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
- 
-    --accent: 217.2 32.6% 17.5%;
+    --accent: 216 34% 17%;
     --accent-foreground: 210 40% 98%;
  
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 63% 31%;
     --destructive-foreground: 210 40% 98%;
  
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --ring: 216 34% 17%;
+ 
+    --radius: 0.5rem;
   }
 }
  
@@ -96,11 +102,45 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Navigation Link Styles */
+  .nav-link {
+    @apply inline-flex items-center px-2 py-1 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 hover:text-gray-900 transition-colors;
   }
 }
 
-@layer components {
-  .nav-link {
-    @apply px-3 py-2 text-sm font-medium text-gray-700 hover:text-orrr-blue-700 transition-colors;
+@layer utilities {
+  .bg-orrr-blue-500 {
+    background-color: hsl(var(--orrr-blue-500));
+  }
+  .bg-orrr-blue-600 {
+    background-color: hsl(var(--orrr-blue-600));
+  }
+  .bg-orrr-blue-700 {
+    background-color: hsl(var(--orrr-blue-700));
+  }
+  .text-orrr-blue-500 {
+    color: hsl(var(--orrr-blue-500));
+  }
+  .text-orrr-blue-600 {
+    color: hsl(var(--orrr-blue-600));
+  }
+  .text-orrr-blue-700 {
+    color: hsl(var(--orrr-blue-700));
+  }
+  .bg-orrr-teal-500 {
+    background-color: hsl(var(--orrr-teal-500));
+  }
+  .text-orrr-teal-500 {
+    color: hsl(var(--orrr-teal-500));
+  }
+  .hover\:bg-orrr-blue-50:hover {
+    background-color: hsl(var(--orrr-blue-50));
+  }
+  .hover\:bg-orrr-blue-600:hover {
+    background-color: hsl(var(--orrr-blue-600));
   }
 }
+
