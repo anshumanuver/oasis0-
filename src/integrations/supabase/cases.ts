@@ -46,9 +46,39 @@ export async function createCase(caseData: CaseCreateDTO) {
   return data;
 }
 
-// Function to fetch cases for the current user
-export async function fetchUserCases(userId: string) {
-  // First get all cases where the user is directly a creator
+// Function to fetch cases for the current user (or all cases for admin)
+export async function fetchUserCases(userId: string, isAdmin: boolean = false) {
+  // If admin, fetch all cases
+  if (isAdmin) {
+    const { data: allCases, error } = await supabase
+      .from('cases')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching all cases:', error);
+      throw error;
+    }
+
+    return (allCases || []).map(c => ({
+      id: c.id,
+      title: c.title,
+      description: c.description,
+      disputeType: c.case_type as DisputeType,
+      status: c.status as CaseStatus,
+      createdAt: c.created_at,
+      updatedAt: c.updated_at,
+      createdBy: c.created_by,
+      resolvedAt: c.resolved_at,
+      parties: [],
+      documents: [],
+      messages: [],
+      events: [],
+      nextHearingDate: undefined
+    }));
+  }
+
+  // For regular users, get cases where they are creator or party
   const { data: createdCases, error: createdError } = await supabase
     .from('cases')
     .select('*')

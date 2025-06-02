@@ -5,12 +5,13 @@ import { useAuth } from '@/context/AuthContext';
 import MainLayout from '@/components/layout/MainLayout';
 import CasesTable from '@/components/dashboard/CasesTable';
 import { fetchUserCases } from '@/integrations/supabase/cases';
+import { mockCases } from '@/data/mockData';
 import { Case } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 
 export default function Cases() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [cases, setCases] = useState<Case[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,8 +22,15 @@ export default function Cases() {
       
       try {
         setLoading(true);
-        const userCases = await fetchUserCases(user.id);
-        setCases(userCases);
+        
+        // If user is admin, show all cases (mock data for now since we need to implement the admin fetch properly)
+        if (profile?.role === 'admin') {
+          setCases(mockCases);
+        } else {
+          // For regular users, fetch their specific cases
+          const userCases = await fetchUserCases(user.id, false);
+          setCases(userCases);
+        }
       } catch (err) {
         console.error('Error loading cases:', err);
         setError('Failed to load cases. Please try refreshing the page.');
@@ -32,15 +40,36 @@ export default function Cases() {
     }
 
     loadCases();
-  }, [user]);
+  }, [user, profile]);
+
+  const getPageTitle = () => {
+    if (profile?.role === 'admin') {
+      return 'All Cases - Admin View';
+    }
+    return 'Your Cases';
+  };
+
+  const getPageDescription = () => {
+    if (profile?.role === 'admin') {
+      return 'Manage all dispute resolution cases across the platform';
+    }
+    return 'Manage all your dispute resolution cases';
+  };
 
   return (
     <MainLayout requireAuth>
       <div className="container py-8">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-2xl font-bold">Your Cases</h1>
-            <p className="text-gray-600">Manage all your dispute resolution cases</p>
+            <h1 className="text-2xl font-bold">{getPageTitle()}</h1>
+            <p className="text-gray-600">{getPageDescription()}</p>
+            {profile?.role === 'admin' && (
+              <div className="mt-2">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                  Admin Access
+                </span>
+              </div>
+            )}
           </div>
           <Button asChild>
             <Link to="/cases/new">
@@ -75,8 +104,15 @@ export default function Cases() {
             <CasesTable cases={cases} />
             {cases.length === 0 && (
               <div className="text-center py-12">
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No cases found</h3>
-                <p className="text-gray-500 mb-6">You haven't filed any cases yet.</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  {profile?.role === 'admin' ? 'No cases in the system' : 'No cases found'}
+                </h3>
+                <p className="text-gray-500 mb-6">
+                  {profile?.role === 'admin' 
+                    ? 'There are currently no cases in the platform.' 
+                    : 'You haven\'t filed any cases yet.'
+                  }
+                </p>
                 <Button asChild>
                   <Link to="/cases/new">Create your first case</Link>
                 </Button>
