@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -24,6 +23,7 @@ import HearingScheduler from "./pages/HearingScheduler";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import About from "./pages/About";
+import InviteAccept from "./pages/InviteAccept";
 
 const queryClient = new QueryClient();
 
@@ -94,6 +94,9 @@ const AppRoutes = () => {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/about" element={<About />} />
+
+      {/* Invitation acceptance route */}
+      <Route path="/invite/:token" element={<InviteAccept />} />
 
       {/* Profile and Settings pages */}
       <Route path="/profile" element={

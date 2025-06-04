@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { createCase } from '@/integrations/supabase/cases';
+import { createInvitation } from '@/integrations/supabase/invitations';
 import MainLayout from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -28,6 +29,8 @@ export default function CaseForm() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [disputeType, setDisputeType] = useState<DisputeType>('mediation');
+  const [respondentEmail, setRespondentEmail] = useState('');
+  const [respondentPhone, setRespondentPhone] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -44,9 +47,15 @@ export default function CaseForm() {
       return;
     }
 
+    if (!respondentEmail) {
+      setError("Respondent email is required");
+      return;
+    }
+
     setIsLoading(true);
     
     try {
+      // Create the case
       const newCase = await createCase({
         title,
         description,
@@ -54,9 +63,17 @@ export default function CaseForm() {
         createdBy: user.id
       });
       
+      // Create invitation for respondent
+      await createInvitation({
+        caseId: newCase.id,
+        email: respondentEmail,
+        phone: respondentPhone,
+        invitedBy: user.id
+      });
+      
       toast({
-        title: "Case created",
-        description: "Your case has been successfully submitted"
+        title: "Case created successfully",
+        description: "The respondent has been invited via email to join the case"
       });
       
       navigate(`/cases/${newCase.id}`);
@@ -78,7 +95,7 @@ export default function CaseForm() {
       <div className="container py-8 max-w-2xl">
         <div className="mb-8">
           <h1 className="text-2xl font-bold mb-2">File a New Case</h1>
-          <p className="text-gray-600">Please provide details about your dispute</p>
+          <p className="text-gray-600">Please provide details about your dispute and the respondent</p>
         </div>
         
         {error && (
@@ -130,13 +147,44 @@ export default function CaseForm() {
               required
             />
           </div>
+
+          <div className="border-t pt-6">
+            <h3 className="text-lg font-medium mb-4">Respondent Information</h3>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="respondentEmail">Respondent Email *</Label>
+                <Input
+                  id="respondentEmail"
+                  type="email"
+                  value={respondentEmail}
+                  onChange={(e) => setRespondentEmail(e.target.value)}
+                  placeholder="email@example.com"
+                  required
+                />
+                <p className="text-xs text-gray-500">
+                  We'll send a secure invitation link to this email if they don't have an account
+                </p>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="respondentPhone">Respondent Phone (Optional)</Label>
+                <Input
+                  id="respondentPhone"
+                  type="tel"
+                  value={respondentPhone}
+                  onChange={(e) => setRespondentPhone(e.target.value)}
+                  placeholder="+1 (555) 123-4567"
+                />
+              </div>
+            </div>
+          </div>
           
           <div className="flex gap-3">
             <Button type="button" variant="outline" onClick={() => navigate(-1)}>
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Submitting..." : "Submit Case"}
+              {isLoading ? "Creating Case..." : "Create Case & Send Invitation"}
             </Button>
           </div>
         </form>

@@ -169,3 +169,30 @@ export async function fetchCaseDetails(caseId: string) {
     nextHearingDate: undefined
   };
 }
+
+export async function getUserRoleInCase(caseId: string, userId: string): Promise<'claimant' | 'respondent' | 'neutral' | null> {
+  // Check if user is case creator (claimant)
+  const { data: caseData } = await supabase
+    .from('cases')
+    .select('created_by')
+    .eq('id', caseId)
+    .single();
+    
+  if (caseData?.created_by === userId) {
+    return 'claimant';
+  }
+
+  // Check if user is a party in the case
+  const { data: partyData } = await supabase
+    .from('case_parties')
+    .select('party_type')
+    .eq('case_id', caseId)
+    .eq('profile_id', userId)
+    .single();
+
+  if (partyData) {
+    return partyData.party_type as 'claimant' | 'respondent' | 'neutral';
+  }
+
+  return null;
+}

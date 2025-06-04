@@ -14,6 +14,7 @@ export type Database = {
           case_id: string
           created_at: string | null
           id: string
+          invitation_id: string | null
           party_type: string
           profile_id: string
         }
@@ -21,6 +22,7 @@ export type Database = {
           case_id: string
           created_at?: string | null
           id?: string
+          invitation_id?: string | null
           party_type: string
           profile_id: string
         }
@@ -28,6 +30,7 @@ export type Database = {
           case_id?: string
           created_at?: string | null
           id?: string
+          invitation_id?: string | null
           party_type?: string
           profile_id?: string
         }
@@ -37,6 +40,13 @@ export type Database = {
             columns: ["case_id"]
             isOneToOne: false
             referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "case_parties_invitation_id_fkey"
+            columns: ["invitation_id"]
+            isOneToOne: false
+            referencedRelation: "invitations"
             referencedColumns: ["id"]
           },
           {
@@ -113,6 +123,7 @@ export type Database = {
           file_type: string
           id: string
           uploaded_by: string
+          visible_to_parties: boolean
         }
         Insert: {
           case_id: string
@@ -124,6 +135,7 @@ export type Database = {
           file_type: string
           id?: string
           uploaded_by: string
+          visible_to_parties?: boolean
         }
         Update: {
           case_id?: string
@@ -135,6 +147,7 @@ export type Database = {
           file_type?: string
           id?: string
           uploaded_by?: string
+          visible_to_parties?: boolean
         }
         Relationships: [
           {
@@ -212,6 +225,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      invitations: {
+        Row: {
+          accepted_at: string | null
+          case_id: string
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string
+          phone: string | null
+          status: string
+          token: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          case_id: string
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          invited_by: string
+          phone?: string | null
+          status?: string
+          token: string
+        }
+        Update: {
+          accepted_at?: string | null
+          case_id?: string
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string
+          phone?: string | null
+          status?: string
+          token?: string
+        }
+        Relationships: []
       }
       messages: {
         Row: {
@@ -347,7 +399,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_invitation_token: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
