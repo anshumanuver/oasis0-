@@ -15,7 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 
 export default function ProfileMenu() {
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, userRole, signOut } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -44,6 +44,11 @@ export default function ProfileMenu() {
     }
   };
 
+  const getRoleDisplay = () => {
+    if (!userRole) return '';
+    return userRole.charAt(0).toUpperCase() + userRole.slice(1);
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -59,6 +64,9 @@ export default function ProfileMenu() {
           <div className="font-normal text-sm text-gray-500">Signed in as</div>
           <div>{getDisplayName()}</div>
           <div className="text-xs text-gray-500">{user?.email}</div>
+          {userRole && (
+            <div className="text-xs text-blue-600 font-medium">{getRoleDisplay()}</div>
+          )}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
@@ -67,7 +75,7 @@ export default function ProfileMenu() {
         <DropdownMenuItem asChild>
           <Link to="/settings">Settings</Link>
         </DropdownMenuItem>
-        {profile?.role === 'client' && (
+        {userRole === 'client' && (
           <DropdownMenuItem asChild>
             <Link to="/cases/new">File a New Case</Link>
           </DropdownMenuItem>

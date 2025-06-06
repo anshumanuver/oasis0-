@@ -3,19 +3,34 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
+import { getUserPrimaryRole, UserRole } from '@/integrations/supabase/userRoles';
+
+interface Profile {
+  id: string;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  phone?: string;
+  organization?: string;
+  bio?: string;
+  expertise?: string[];
+  created_at?: string;
+  updated_at?: string;
+  is_verified?: boolean;
+}
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
-  profile: any | null;
+  profile: Profile | null;
+  userRole: UserRole | null;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signInWithGoogle: () => Promise<{ error: any }>;
   signUp: (email: string, password: string, userData: any) => Promise<{ error: any, data: any }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
-  refreshProfile: () => Promise<void>; // Added refreshProfile function
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -23,7 +38,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [profile, setProfile] = useState<any | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [userRole, setUserRole] = useState<UserRole | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -36,9 +52,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (currentSession?.user) {
           setTimeout(() => {
             fetchProfile(currentSession.user.id);
+            fetchUserRole(currentSession.user.id);
           }, 0);
         } else {
           setProfile(null);
+          setUserRole(null);
         }
       }
     );
@@ -50,6 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       if (currentSession?.user) {
         fetchProfile(currentSession.user.id);
+        fetchUserRole(currentSession.user.id);
       }
       setIsLoading(false);
     });
@@ -80,9 +99,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  async function fetchUserRole(userId: string) {
+    try {
+      const role = await getUserPrimaryRole(userId);
+      setUserRole(role);
+    } catch (error) {
+      console.error('Error fetching user role:', error);
+      setUserRole(null);
+    }
+  }
+
   const refreshProfile = async () => {
     if (user) {
       await fetchProfile(user.id);
+      await fetchUserRole(user.id);
     }
   };
 
@@ -160,6 +190,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         session,
         profile,
+        userRole,
         isLoading,
         signIn,
         signInWithGoogle,

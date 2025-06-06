@@ -47,9 +47,9 @@ export async function createCase(caseData: CaseCreateDTO) {
 }
 
 // Function to fetch cases for the current user (or all cases for admin)
-export async function fetchUserCases(userId: string, isAdmin: boolean = false) {
+export async function fetchUserCases(userId: string, userRole: string | null = null) {
   // If admin, fetch all cases
-  if (isAdmin) {
+  if (userRole === 'admin') {
     const { data: allCases, error } = await supabase
       .from('cases')
       .select('*')

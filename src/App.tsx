@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -52,7 +53,7 @@ const RoleRoute = ({
   children: React.ReactNode, 
   allowedRoles: string[] 
 }) => {
-  const { user, profile, isLoading } = useAuth();
+  const { user, userRole, isLoading } = useAuth();
   
   if (isLoading) {
     return (
@@ -64,9 +65,7 @@ const RoleRoute = ({
   
   if (!user) return <Navigate to="/login" />;
   
-  const userRole = profile?.role || 'client';
-  
-  if (!allowedRoles.includes(userRole)) {
+  if (!userRole || !allowedRoles.includes(userRole)) {
     return <Navigate to="/dashboard" />;
   }
   
@@ -74,13 +73,13 @@ const RoleRoute = ({
 };
 
 const AppRoutes = () => {
-  const { profile } = useAuth();
+  const { userRole } = useAuth();
   
   // Redirect based on user role
   const handleDashboardRedirect = () => {
-    if (profile?.role === 'neutral') {
+    if (userRole === 'neutral') {
       return <Navigate to="/mediator-dashboard" />;
-    } else if (profile?.role === 'client') {
+    } else if (userRole === 'client') {
       return <Navigate to="/party-dashboard" />;
     }
     return <Navigate to="/dashboard" />;

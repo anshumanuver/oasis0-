@@ -11,9 +11,9 @@ import { Case } from '@/types';
 
 export default function CaseDetail() {
   const { caseId } = useParams<{ caseId: string }>();
-  const { user, profile } = useAuth();
+  const { user, userRole } = useAuth();
   const [caseData, setCaseData] = useState<Case | null>(null);
-  const [userRole, setUserRole] = useState<'claimant' | 'respondent' | 'neutral' | 'admin' | null>(null);
+  const [userRoleInCase, setUserRoleInCase] = useState<'claimant' | 'respondent' | 'neutral' | 'admin' | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -29,11 +29,11 @@ export default function CaseDetail() {
         setCaseData(case_data);
 
         // Determine user's role in the case
-        if (profile?.role === 'admin') {
-          setUserRole('admin');
+        if (userRole === 'admin') {
+          setUserRoleInCase('admin');
         } else {
           const role = await getUserRoleInCase(caseId, user.id);
-          setUserRole(role);
+          setUserRoleInCase(role);
         }
       } catch (err) {
         console.error('Error loading case data:', err);
@@ -44,7 +44,7 @@ export default function CaseDetail() {
     }
 
     loadCaseData();
-  }, [caseId, user, profile]);
+  }, [caseId, user, userRole]);
 
   if (loading) {
     return (
@@ -58,7 +58,7 @@ export default function CaseDetail() {
     );
   }
 
-  if (error || !caseData || !userRole) {
+  if (error || !caseData || !userRoleInCase) {
     return (
       <MainLayout requireAuth>
         <div className="container py-8">
@@ -76,7 +76,7 @@ export default function CaseDetail() {
   return (
     <MainLayout requireAuth>
       <div className="container py-8">
-        <CaseWorkspace caseData={caseData} userRole={userRole} />
+        <CaseWorkspace caseData={caseData} userRole={userRoleInCase} />
       </div>
     </MainLayout>
   );

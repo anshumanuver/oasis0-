@@ -27,7 +27,7 @@ import MediatorPerformance from '@/components/mediator/MediatorPerformance';
 import CaseAssignmentCard from '@/components/mediator/CaseAssignmentCard';
 
 export default function MediatorDashboard() {
-  const { user, profile, isLoading } = useAuth();
+  const { user, userRole, isLoading } = useAuth();
   const navigate = useNavigate();
   const [stats, setStats] = useState<MediatorStats>({
     activeCases: 0,
@@ -45,12 +45,12 @@ export default function MediatorDashboard() {
     }
 
     // Check if user is a mediator or arbitrator
-    if (!isLoading && user && profile) {
-      if (profile.role !== 'neutral' && profile.role !== 'admin') {
+    if (!isLoading && user && userRole) {
+      if (userRole !== 'neutral' && userRole !== 'admin') {
         navigate('/dashboard');
       }
     }
-  }, [user, isLoading, navigate, profile]);
+  }, [user, isLoading, navigate, userRole]);
 
   useEffect(() => {
     // Calculate mediator stats based on mock data
@@ -97,7 +97,7 @@ export default function MediatorDashboard() {
 
   // Filter cases for this mediator
   const mediatorCases = mockCases.filter(caseItem => 
-    caseItem.neutralId === user.id || profile?.role === 'admin'
+    caseItem.neutralId === user.id || userRole === 'admin'
   );
   
   // Get pending case assignments (mock data for now)

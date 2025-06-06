@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 
 export default function Cases() {
-  const { user, profile } = useAuth();
+  const { user, userRole } = useAuth();
   const [cases, setCases] = useState<Case[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -24,11 +24,11 @@ export default function Cases() {
         setLoading(true);
         
         // If user is admin, show all cases (mock data for now since we need to implement the admin fetch properly)
-        if (profile?.role === 'admin') {
+        if (userRole === 'admin') {
           setCases(mockCases);
         } else {
           // For regular users, fetch their specific cases
-          const userCases = await fetchUserCases(user.id, false);
+          const userCases = await fetchUserCases(user.id, userRole);
           setCases(userCases);
         }
       } catch (err) {
@@ -40,17 +40,17 @@ export default function Cases() {
     }
 
     loadCases();
-  }, [user, profile]);
+  }, [user, userRole]);
 
   const getPageTitle = () => {
-    if (profile?.role === 'admin') {
+    if (userRole === 'admin') {
       return 'All Cases - Admin View';
     }
     return 'Your Cases';
   };
 
   const getPageDescription = () => {
-    if (profile?.role === 'admin') {
+    if (userRole === 'admin') {
       return 'Manage all dispute resolution cases across the platform';
     }
     return 'Manage all your dispute resolution cases';
@@ -63,7 +63,7 @@ export default function Cases() {
           <div>
             <h1 className="text-2xl font-bold">{getPageTitle()}</h1>
             <p className="text-gray-600">{getPageDescription()}</p>
-            {profile?.role === 'admin' && (
+            {userRole === 'admin' && (
               <div className="mt-2">
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                   Admin Access
@@ -105,10 +105,10 @@ export default function Cases() {
             {cases.length === 0 && (
               <div className="text-center py-12">
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  {profile?.role === 'admin' ? 'No cases in the system' : 'No cases found'}
+                  {userRole === 'admin' ? 'No cases in the system' : 'No cases found'}
                 </h3>
                 <p className="text-gray-500 mb-6">
-                  {profile?.role === 'admin' 
+                  {userRole === 'admin' 
                     ? 'There are currently no cases in the platform.' 
                     : 'You haven\'t filed any cases yet.'
                   }
