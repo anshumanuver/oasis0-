@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,7 +12,7 @@ export default function MessagesList() {
   const [cases, setCases] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCase, setSelectedCase] = useState<string | null>(null);
-  const { user, profile } = useAuth();
+  const { user, userRole } = useAuth();
   const { toast } = useToast();
   
   // Fetch cases for this user
@@ -25,7 +24,7 @@ export default function MessagesList() {
         setLoading(true);
         let query;
         
-        if (profile?.role === 'neutral') {
+        if (userRole === 'neutral') {
           // For mediators, fetch cases they're assigned to
           query = supabase
             .from('cases')
@@ -62,7 +61,7 @@ export default function MessagesList() {
         
         // Format the data depending on the role
         let formattedCases = [];
-        if (profile?.role === 'neutral') {
+        if (userRole === 'neutral') {
           formattedCases = data;
         } else {
           formattedCases = data.map((item: any) => item.cases).filter(Boolean);
@@ -82,7 +81,7 @@ export default function MessagesList() {
     };
     
     fetchCases();
-  }, [user?.id, profile?.role, toast]);
+  }, [user?.id, userRole, toast]);
   
   if (selectedCase) {
     const caseData = cases.find(c => c.id === selectedCase);

@@ -9,14 +9,14 @@ import ProfileMenu from './ProfileMenu';
 import AppNavigationMenu from './NavigationMenu';
 
 export default function Navbar() {
-  const { user, profile } = useAuth();
+  const { user, userRole } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Determine dashboard link based on user role
   const getDashboardLink = () => {
-    if (profile?.role === 'neutral') {
+    if (userRole === 'neutral') {
       return '/mediator-dashboard';
-    } else if (profile?.role === 'client') {
+    } else if (userRole === 'client') {
       return '/party-dashboard';
     }
     return '/dashboard';
@@ -112,7 +112,7 @@ export default function Navbar() {
                 >
                   Cases
                 </Link>
-                {profile?.role === 'neutral' && (
+                {userRole === 'neutral' && (
                   <Link
                     to="/hearings"
                     className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
@@ -121,7 +121,7 @@ export default function Navbar() {
                     Hearings
                   </Link>
                 )}
-                {profile?.role === 'client' && (
+                {userRole === 'client' && (
                   <>
                     <Link
                       to="/messages"
@@ -139,7 +139,7 @@ export default function Navbar() {
                     </Link>
                   </>
                 )}
-                {profile?.role === 'admin' && (
+                {userRole === 'admin' && (
                   <Link
                     to="/admin"
                     className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"

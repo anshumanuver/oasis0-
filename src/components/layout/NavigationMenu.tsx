@@ -5,11 +5,11 @@ import { cn } from "@/lib/utils";
 import { useAuth } from '@/context/AuthContext';
 
 export default function AppNavigationMenu() {
-  const { user, profile } = useAuth();
+  const { user, userRole } = useAuth();
   
-  const isClient = profile?.role === 'client';
-  const isNeutral = profile?.role === 'neutral';
-  const isAdmin = profile?.role === 'admin';
+  const isClient = userRole === 'client';
+  const isNeutral = userRole === 'neutral';
+  const isAdmin = userRole === 'admin';
   
   if (!user) return null;
 

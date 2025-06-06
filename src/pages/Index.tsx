@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import MainLayout from '@/components/layout/MainLayout';
@@ -5,10 +6,10 @@ import { useAuth } from '@/context/AuthContext';
 import { FileText, Users, Scale, MessageCircle } from 'lucide-react';
 
 export default function Index() {
-  const { user, profile } = useAuth();
+  const { user, userRole } = useAuth();
   
-  const isClient = profile?.role === 'client';
-  const isNeutral = profile?.role === 'neutral';
+  const isClient = userRole === 'client';
+  const isNeutral = userRole === 'neutral';
   
   return (
     <MainLayout withFooter={true} showNotifications={false}>

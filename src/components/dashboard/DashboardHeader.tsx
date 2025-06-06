@@ -7,7 +7,7 @@ interface DashboardHeaderProps {
 }
 
 export default function DashboardHeader({ title, description }: DashboardHeaderProps) {
-  const { user, profile } = useAuth();
+  const { user, profile, userRole } = useAuth();
   const currentDateTime = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
@@ -41,7 +41,7 @@ export default function DashboardHeader({ title, description }: DashboardHeaderP
       </div>
       {user && (
         <p className="mt-2 text-sm text-gray-500">
-          Welcome, {getDisplayName()} {profile?.role && `(${profile.role})`}
+          Welcome, {getDisplayName()} {userRole && `(${userRole})`}
         </p>
       )}
     </div>

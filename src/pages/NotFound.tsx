@@ -6,12 +6,12 @@ import { useAuth } from '@/context/AuthContext';
 import { FileQuestion } from 'lucide-react';
 
 export default function NotFound() {
-  const { user, profile } = useAuth();
+  const { user, userRole } = useAuth();
   
   const getDashboardLink = () => {
-    if (profile?.role === 'neutral') {
+    if (userRole === 'neutral') {
       return '/mediator-dashboard';
-    } else if (profile?.role === 'client') {
+    } else if (userRole === 'client') {
       return '/party-dashboard';
     }
     return '/dashboard';
