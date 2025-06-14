@@ -66,7 +66,14 @@ const RoleRoute = ({
   if (!user) return <Navigate to="/login" />;
   
   if (!userRole || !allowedRoles.includes(userRole)) {
-    return <Navigate to="/dashboard" />;
+    // If role doesn't match, redirect to their main dashboard
+    if (userRole === 'neutral') {
+      return <Navigate to="/mediator-dashboard" />;
+    } else if (userRole === 'client') {
+      return <Navigate to="/party-dashboard" />;
+    } else {
+      return <Navigate to="/" />;
+    }
   }
   
   return <>{children}</>;
@@ -75,14 +82,15 @@ const RoleRoute = ({
 const AppRoutes = () => {
   const { userRole } = useAuth();
   
-  // Redirect based on user role
+  // Direct to role-specific dashboards
   const handleDashboardRedirect = () => {
     if (userRole === 'neutral') {
       return <Navigate to="/mediator-dashboard" />;
     } else if (userRole === 'client') {
       return <Navigate to="/party-dashboard" />;
     }
-    return <Navigate to="/dashboard" />;
+    // You can pick an admin dashboard or index if needed.
+    return <Navigate to="/" />;
   };
   
   return (
@@ -93,8 +101,6 @@ const AppRoutes = () => {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/about" element={<About />} />
-
-      {/* Invitation acceptance route */}
       <Route path="/invite/:token" element={<InviteAccept />} />
 
       {/* Profile and Settings pages */}
@@ -110,21 +116,16 @@ const AppRoutes = () => {
         </ProtectedRoute>
       } />
       
-      {/* Role-specific dashboard routes */}
+      {/* Redirect all users after login to dashboard-redirect */}
       <Route path="/dashboard-redirect" element={
         <ProtectedRoute>
           {handleDashboardRedirect()}
         </ProtectedRoute>
       } />
       
-      <Route path="/dashboard" element={
-        <ProtectedRoute>
-          <Dashboard />
-        </ProtectedRoute>
-      } />
-      
+      {/* ROLE-RESTRICTED DASHBOARDS */}
       <Route path="/mediator-dashboard" element={
-        <RoleRoute allowedRoles={['neutral', 'admin']}>
+        <RoleRoute allowedRoles={['neutral']}>
           <MediatorDashboard />
         </RoleRoute>
       } />
@@ -135,50 +136,47 @@ const AppRoutes = () => {
         </RoleRoute>
       } />
       
-      {/* Case routes */}
+      {/* REMOVE GENERIC /dashboard ROUTE, only allow per-role */}
+      {/* Remove the /dashboard route below unless you still need it for 'admin' */}
+      {/* <Route path="/dashboard" element={...} /> */}
+
+      {/* Case routes - accessible to both roles */}
       <Route path="/cases" element={
         <ProtectedRoute>
           <Cases />
         </ProtectedRoute>
       } />
-      
       <Route path="/cases/new" element={
         <ProtectedRoute>
           <CaseForm />
         </ProtectedRoute>
       } />
-      
       <Route path="/cases/:caseId" element={
         <ProtectedRoute>
           <CaseDetail />
         </ProtectedRoute>
       } />
-      
       <Route path="/messages" element={
         <ProtectedRoute>
           <Messages />
         </ProtectedRoute>
       } />
-      
       {/* Hearings routes */}
       <Route path="/hearings" element={
         <ProtectedRoute>
           <HearingsList />
         </ProtectedRoute>
       } />
-      
       <Route path="/hearings/new" element={
         <ProtectedRoute>
           <HearingScheduler />
         </ProtectedRoute>
       } />
-      
       <Route path="/cases/:caseId/schedule-hearing" element={
         <ProtectedRoute>
           <HearingScheduler />
         </ProtectedRoute>
       } />
-      
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
